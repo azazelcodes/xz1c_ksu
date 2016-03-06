@@ -1594,7 +1594,8 @@ static int follow_dotdot(struct nameidata *nd)
  *
  * dir->d_inode->i_mutex must be held
  */
-static struct dentry *lookup_dcache(struct qstr *name, struct dentry *dir,
+static struct dentry *lookup_dcache(const struct qstr *name,
+					struct dentry *dir,
 				    unsigned int flags, bool *need_lookup)
 {
 	struct dentry *dentry;
@@ -1653,7 +1654,7 @@ static struct dentry *lookup_real(struct inode *dir, struct dentry *dentry,
 	return dentry;
 }
 
-static struct dentry *__lookup_hash(struct qstr *name,
+static struct dentry *__lookup_hash(const struct qstr *name,
 		struct dentry *base, unsigned int flags)
 {
 	bool need_lookup;
@@ -1769,21 +1770,15 @@ need_lookup:
 }
 
 /* Fast lookup failed, do it the slow way */
-static int lookup_slow(struct nameidata *nd, struct path *path)
+static struct dentry *lookup_slow(const struct qstr *name,
+				  struct dentry *dir,
+				  unsigned int flags)
 {
-	struct dentry *dentry, *parent;
-
-	parent = nd->path.dentry;
-	BUG_ON(nd->inode != parent->d_inode);
-
+	struct dentry *dentry;
 	mutex_lock(&parent->d_inode->i_mutex);
-	dentry = __lookup_hash(&nd->last, parent, nd->flags);
+	dentry = __lookup_hash(name, dir, flags);
 	mutex_unlock(&parent->d_inode->i_mutex);
-	if (IS_ERR(dentry))
-		return PTR_ERR(dentry);
-	path->mnt = nd->path.mnt;
-	path->dentry = dentry;
-	return follow_managed(path, nd);
+	return dentry;
 }
 
 static inline int may_lookup(struct nameidata *nd)
@@ -1888,15 +1883,20 @@ static int walk_component(struct nameidata *nd, int flags)
 	if (unlikely(err)) {
 		if (err < 0)
 			return err;
-
-		err = lookup_slow(nd, &path);
-		if (err < 0)
+		path.dentry = lookup_slow(&nd->last, nd->path.dentry,
+					  nd->flags);
+		if (IS_ERR(path.dentry))
+			return PTR_ERR(path.dentry);
+		if (unlikely(d_is_negative(path.dentry))) {
+			dput(path.dentry);
+			return -ENOENT;
+		}
+		path.mnt = nd->path.mnt;
+		err = follow_managed(&path, nd);
+		if (unlikely(err < 0))
 			return err;
 
 		seq = 0;	/* we are already out of RCU mode */
-		err = -ENOENT;
-		if (d_is_negative(path.dentry))
-			goto out_path_put;
 		inode = d_backing_inode(path.dentry);
 	}
 
@@ -1909,10 +1909,6 @@ static int walk_component(struct nameidata *nd, int flags)
 	nd->inode = inode;
 	nd->seq = seq;
 	return 0;
-
-out_path_put:
-	path_to_nameidata(&path, nd);
-	return err;
 }
 
 /*
@@ -2544,12 +2540,8 @@ struct dentry *lookup_one_len_unlocked(const char *name,
 		dput(ret);
 		ret = NULL;
 	}
-	if (ret)
-		return ret;
-
-	mutex_lock(&base->d_inode->i_mutex);
-	ret =  __lookup_hash(&this, base, 0);
-	mutex_unlock(&base->d_inode->i_mutex);
+	if (!ret)
+		ret = lookup_slow(&this, base, 0);
 	return ret;
 }
 EXPORT_SYMBOL(lookup_one_len_unlocked);
