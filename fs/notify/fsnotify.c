@@ -127,7 +127,7 @@ int __fsnotify_parent(struct path *path, struct dentry *dentry, __u32 mask)
 EXPORT_SYMBOL_GPL(__fsnotify_parent);
 
 static int send_to_group(struct inode *to_tell,
-			 __u32 mask, void *data,
+			 __u32 mask, const void *data,
 			 int data_is, u32 cookie,
 			 const struct qstr *file_name,
 			 struct fsnotify_iter_info *iter_info)
@@ -212,7 +212,7 @@ static struct fsnotify_mark *fsnotify_next_mark(struct fsnotify_mark *mark)
  * out to all of the registered fsnotify_group.  Those groups can then use the
  * notification event in whatever means they feel necessary.
  */
-int fsnotify(struct inode *to_tell, __u32 mask, void *data, int data_is,
+int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
 	     const unsigned char *file_name, u32 cookie)
 {
 	struct fsnotify_iter_info iter_info = {};
@@ -222,7 +222,7 @@ int fsnotify(struct inode *to_tell, __u32 mask, void *data, int data_is,
 	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
 
 	if (data_is == FSNOTIFY_EVENT_PATH)
-		mnt = real_mount(((struct path *)data)->mnt);
+		mnt = real_mount(((const struct path *)data)->mnt);
 	else
 		mnt = NULL;
 
