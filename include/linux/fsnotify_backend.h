@@ -94,7 +94,7 @@ struct fsnotify_fname;
 struct fsnotify_ops {
 	int (*handle_event)(struct fsnotify_group *group,
 			    struct inode *inode,	
-			    u32 mask, void *data, int data_type,
+			    u32 mask, const void *data, int data_type,
 			    const unsigned char *file_name, u32 cookie,
 			    struct fsnotify_iter_info *iter_info);
 	void (*free_group_priv)(struct fsnotify_group *group);

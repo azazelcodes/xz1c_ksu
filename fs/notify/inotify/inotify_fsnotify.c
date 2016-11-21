@@ -64,7 +64,7 @@ static int inotify_merge(struct list_head *list,
 
 int inotify_handle_event(struct fsnotify_group *group,
 			 struct inode *inode,
-			 u32 mask, void *data, int data_type,
+			 u32 mask, const void *data, int data_type,
 			 const unsigned char *file_name, u32 cookie,
 			 struct fsnotify_iter_info *iter_info)
 {
@@ -81,7 +81,7 @@ int inotify_handle_event(struct fsnotify_group *group,
 
 	if ((inode_mark->mask & FS_EXCL_UNLINK) &&
 	    (data_type == FSNOTIFY_EVENT_PATH)) {
-		struct path *path = data;
+		const struct path *path = data;
 
 		if (d_unlinked(path->dentry))
 			return 0;

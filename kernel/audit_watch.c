@@ -480,11 +480,11 @@ void audit_remove_watch_rule(struct audit_krule *krule)
 /* Update watch data in audit rules based on fsnotify events. */
 static int audit_watch_handle_event(struct fsnotify_group *group,
 				    struct inode *to_tell,
-				    u32 mask, void *data, int data_type,
+				    u32 mask, const void *data, int data_type,
 				    const unsigned char *dname, u32 cookie)
 {
 	struct fsnotify_mark *inode_mark = fsnotify_iter_inode_mark(iter_info);
-	struct inode *inode;
+	const struct inode *inode;
 	struct audit_parent *parent;
 
 	parent = container_of(inode_mark, struct audit_parent, mark);
@@ -493,10 +493,10 @@ static int audit_watch_handle_event(struct fsnotify_group *group,
 
 	switch (data_type) {
 	case (FSNOTIFY_EVENT_PATH):
-		inode = d_backing_inode(((struct path *)data)->dentry);
+		inode = d_backing_inode(((const struct path *)data)->dentry);
 		break;
 	case (FSNOTIFY_EVENT_INODE):
-		inode = (struct inode *)data;
+		inode = (const struct inode *)data;
 		break;
 	default:
 		BUG();
