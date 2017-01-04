@@ -66,8 +66,20 @@ void fsnotify_destroy_group(struct fsnotify_group *group)
 	 */
 	fsnotify_group_stop_queueing(group);
 
+<<<<<<< HEAD
 	/* clear all inode marks for this group */
 	fsnotify_clear_marks_by_group(group);
+=======
+	/* Clear all marks for this group and queue them for destruction */
+	fsnotify_clear_marks_by_group(group, FSNOTIFY_OBJ_ALL_TYPES);
+
+	/*
+	 * Some marks can still be pinned when waiting for response from
+	 * userspace. Wait for those now. fsnotify_prepare_user_wait() will
+	 * not succeed now so this wait is race-free.
+	 */
+	wait_event(group->notification_waitq, !atomic_read(&group->user_waits));
+>>>>>>> 2e37c6ca8d76 (fsnotify: Remove fsnotify_detach_group_marks())
 
 	synchronize_srcu(&fsnotify_mark_srcu);
 

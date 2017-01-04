@@ -219,6 +219,8 @@ FSNOTIFY_ITER_FUNCS(vfsmount, VFSMOUNT)
 struct fsnotify_mark_connector {
 #define FSNOTIFY_OBJ_TYPE_INODE		0x01
 #define FSNOTIFY_OBJ_TYPE_VFSMOUNT	0x02
+#define FSNOTIFY_OBJ_ALL_TYPES		(FSNOTIFY_OBJ_TYPE_INODE | \
+					 FSNOTIFY_OBJ_TYPE_VFSMOUNT)
 	unsigned int flags;	/* Type of object [lock] */
 	union {	/* Object pointer [lock] */
 		struct inode *inode;

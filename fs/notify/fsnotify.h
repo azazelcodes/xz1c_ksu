@@ -59,6 +59,7 @@ static inline void fsnotify_clear_marks_by_mount(struct vfsmount *mnt)
 	fsnotify_destroy_marks(real_mount(mnt)->mnt_fsnotify_marks,
 			       &mnt->mnt_root->d_lock);
 }
+
 /*
  * update the dentry->d_flags of all of inode's children to indicate if inode cares
  * about events that happen to its children.

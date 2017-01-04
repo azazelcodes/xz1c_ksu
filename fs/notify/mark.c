@@ -495,7 +495,13 @@ void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group,
 {
 	struct fsnotify_mark *lmark, *mark;
 	LIST_HEAD(to_free);
+	struct list_head *head = &to_free;
 
+	/* Skip selection step if we want to clear all marks. */
+	if (type == FSNOTIFY_OBJ_ALL_TYPES) {
+		head = &group->marks_list;
+		goto clear;
+	}
 	/*
 	 * We have to be really careful here. Anytime we drop mark_mutex, e.g.
 	 * fsnotify_clear_marks_by_inode() can come and free marks. Even in our
@@ -512,13 +518,14 @@ void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group,
 	}
 	mutex_unlock(&group->mark_mutex);
 
+clear:
 	while (1) {
 		mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-		if (list_empty(&to_free)) {
+		if (list_empty(head)) {
 			mutex_unlock(&group->mark_mutex);
 			break;
 		}
-		mark = list_first_entry(&to_free, struct fsnotify_mark, g_list);
+		mark = list_first_entry(head, struct fsnotify_mark, g_list);
 		fsnotify_get_mark(mark);
 		fsnotify_detach_mark(mark);
 		mutex_unlock(&group->mark_mutex);
