@@ -59,7 +59,7 @@
  * - The fs the inode is on is unmounted.  (fsnotify_inode_delete/fsnotify_unmount_inodes)
  * - Something explicitly requests that it be removed.  (fsnotify_destroy_mark)
  * - The fsnotify_group associated with the mark is going away and all such marks
- *   need to be cleaned up. (fsnotify_clear_marks_by_group)
+ *   need to be cleaned up. (fsnotify_detach_group_marks)
  *
  * Worst case we are given an inode and need to clean up all the marks on that
  * inode.  We take i_lock and walk the i_fsnotify_marks safely.  For each
@@ -487,11 +487,9 @@ struct fsnotify_mark *fsnotify_find_mark(struct fsnotify_mark_connector *conn,
 	return NULL;
 }
 
-/*
- * clear any marks in a group in which mark->flags & flags is true
- */
-void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group,
-					 unsigned int flags)
+/* Clear any marks in a group with given type */
+void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
+				   unsigned int type)
 {
 	struct fsnotify_mark *lmark, *mark;
 	LIST_HEAD(to_free);
