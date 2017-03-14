@@ -233,8 +233,8 @@ int fsnotify(struct inode *to_tell, __u32 mask, void *data, int data_is,
 	 * SRCU because we have no references to any objects and do not
 	 * need SRCU to keep them "alive".
 	 */
-	if (hlist_empty(&to_tell->i_fsnotify_marks) &&
-	    (!mnt || hlist_empty(&mnt->mnt_fsnotify_marks)))
+	if (!to_tell->i_fsnotify_marks &&
+	    (!mnt || !mnt->mnt_fsnotify_marks))
 		return 0;
 	/*
 	 * if this is a modify event we may need to clear the ignored masks
@@ -309,6 +309,8 @@ out:
 }
 EXPORT_SYMBOL_GPL(fsnotify);
 
+extern struct kmem_cache *fsnotify_mark_connector_cachep;
+
 static __init int fsnotify_init(void)
 {
 	int ret;
@@ -318,6 +320,9 @@ static __init int fsnotify_init(void)
 	ret = init_srcu_struct(&fsnotify_mark_srcu);
 	if (ret)
 		panic("initializing fsnotify_mark_srcu");
+
+	fsnotify_mark_connector_cachep = KMEM_CACHE(fsnotify_mark_connector,
+						    SLAB_PANIC);
 
 	return 0;
 }

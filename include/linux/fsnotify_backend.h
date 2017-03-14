@@ -212,6 +212,15 @@ FSNOTIFY_ITER_FUNCS(inode, INODE)
 FSNOTIFY_ITER_FUNCS(vfsmount, VFSMOUNT)
 
 /*
+ * Inode / vfsmount point to this structure which tracks all marks attached to
+ * the inode / vfsmount. The structure is freed only when inode / vfsmount gets
+ * freed.
+ */
+struct fsnotify_mark_connector {
+	struct hlist_head list;
+};
+
+/*
  * A mark is simply an object attached to an in core inode which allows an
  * fsnotify listener to indicate they are either no longer interested in events
  * of a type matching mask or only interested in those events.
@@ -383,6 +392,7 @@ extern void fsnotify_clear_inode_marks_by_group(struct fsnotify_group *group);
 extern void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group, unsigned int flags);
 /* run all the marks in a group, and flag them to be freed */
 extern void fsnotify_clear_marks_by_group(struct fsnotify_group *group);
+extern void fsnotify_connector_free(struct fsnotify_mark_connector **connp);
 extern void fsnotify_get_mark(struct fsnotify_mark *mark);
 extern void fsnotify_put_mark(struct fsnotify_mark *mark);
 extern void fsnotify_unmount_inodes(struct super_block *sb);
