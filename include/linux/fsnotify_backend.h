@@ -211,6 +211,17 @@ static inline struct fsnotify_mark *fsnotify_iter_##name##_mark( \
 FSNOTIFY_ITER_FUNCS(inode, INODE)
 FSNOTIFY_ITER_FUNCS(vfsmount, VFSMOUNT)
 
+enum fsnotify_obj_type {
+	FSNOTIFY_OBJ_TYPE_INODE,
+	FSNOTIFY_OBJ_TYPE_VFSMOUNT,
+	FSNOTIFY_OBJ_TYPE_COUNT,
+	FSNOTIFY_OBJ_TYPE_DETACHED = FSNOTIFY_OBJ_TYPE_COUNT
+};
+
+#define FSNOTIFY_OBJ_TYPE_INODE_FL	(1U << FSNOTIFY_OBJ_TYPE_INODE)
+#define FSNOTIFY_OBJ_TYPE_VFSMOUNT_FL	(1U << FSNOTIFY_OBJ_TYPE_VFSMOUNT)
+#define FSNOTIFY_OBJ_ALL_TYPES_MASK	((1U << FSNOTIFY_OBJ_TYPE_COUNT) - 1)
+
 /*
  * Inode / vfsmount point to this structure which tracks all marks attached to
  * the inode / vfsmount. The structure is freed only when inode / vfsmount gets
@@ -221,7 +232,7 @@ struct fsnotify_mark_connector {
 #define FSNOTIFY_OBJ_TYPE_VFSMOUNT	0x02
 #define FSNOTIFY_OBJ_ALL_TYPES		(FSNOTIFY_OBJ_TYPE_INODE | \
 					 FSNOTIFY_OBJ_TYPE_VFSMOUNT)
-	unsigned int flags;	/* Type of object [lock] */
+	unsigned int type;	/* Type of object [lock] */
 	union {	/* Object pointer [lock] */
 		struct inode *inode;
 		struct vfsmount *mnt;
@@ -390,14 +401,15 @@ extern void fsnotify_detach_mark(struct fsnotify_mark *mark);
 /* free mark */
 extern void fsnotify_free_mark(struct fsnotify_mark *mark);
 /* run all the marks in a group, and clear all of the vfsmount marks */
-extern void fsnotify_clear_vfsmount_marks_by_group(struct fsnotify_group *group);
+static inline void fsnotify_clear_vfsmount_marks_by_group(struct fsnotify_group *group)
+{
+	fsnotify_clear_marks_by_group(group, FSNOTIFY_OBJ_TYPE_VFSMOUNT_FL);
+}
 /* run all the marks in a group, and clear all of the inode marks */
-extern void fsnotify_clear_inode_marks_by_group(struct fsnotify_group *group);
-/* run all the marks in a group, and clear all of the marks attached to given object type */
-extern void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group, unsigned int flags);
-/* run all the marks in a group, and flag them to be freed */
-extern void fsnotify_clear_marks_by_group(struct fsnotify_group *group);
-extern void fsnotify_connector_free(struct fsnotify_mark_connector **connp);
+static inline void fsnotify_clear_inode_marks_by_group(struct fsnotify_group *group)
+{
+	fsnotify_clear_marks_by_group(group, FSNOTIFY_OBJ_TYPE_INODE_FL);
+}
 extern void fsnotify_get_mark(struct fsnotify_mark *mark);
 extern void fsnotify_put_mark(struct fsnotify_mark *mark);
 extern void fsnotify_unmount_inodes(struct super_block *sb);

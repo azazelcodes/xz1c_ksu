@@ -323,10 +323,10 @@ static int fsnotify_attach_connector_to_object(
 		return -ENOMEM;
 	INIT_HLIST_HEAD(&conn->list);
 	if (inode) {
-		conn->flags = FSNOTIFY_OBJ_TYPE_INODE;
+		conn->type = FSNOTIFY_OBJ_TYPE_INODE;
 		conn->inode = inode;
 	} else {
-		conn->flags = FSNOTIFY_OBJ_TYPE_VFSMOUNT;
+		conn->type = FSNOTIFY_OBJ_TYPE_VFSMOUNT;
 		conn->mnt = mnt;
 	}
 	/*
@@ -498,7 +498,7 @@ void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group,
 	struct list_head *head = &to_free;
 
 	/* Skip selection step if we want to clear all marks. */
-	if (type == FSNOTIFY_OBJ_ALL_TYPES) {
+	if (type_mask == FSNOTIFY_OBJ_ALL_TYPES_MASK) {
 		head = &group->marks_list;
 		goto clear;
 	}
@@ -513,7 +513,7 @@ void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group,
 	 */
 	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
 	list_for_each_entry_safe(mark, lmark, &group->marks_list, g_list) {
-		if (mark->connector->flags & flags)
+		if ((1U << mark->connector->type) & type_mask)
 			list_move(&mark->g_list, &to_free);
 	}
 	mutex_unlock(&group->mark_mutex);

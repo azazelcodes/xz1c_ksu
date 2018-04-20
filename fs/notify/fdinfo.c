@@ -96,7 +96,7 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	struct mount *mnt = NULL;
 #endif
-	if (!(mark->connector->flags & FSNOTIFY_OBJ_TYPE_INODE))
+	if (mark->connector->type != FSNOTIFY_OBJ_TYPE_INODE)
 		return;
 
 	inode_mark = container_of(mark, struct inotify_inode_mark, fsn_mark);
@@ -170,7 +170,7 @@ static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 	if (mark->flags & FSNOTIFY_MARK_FLAG_IGNORED_SURV_MODIFY)
 		mflags |= FAN_MARK_IGNORED_SURV_MODIFY;
 
-	if (mark->connector->flags & FSNOTIFY_OBJ_TYPE_INODE) {
+	if (mark->connector->type == FSNOTIFY_OBJ_TYPE_INODE) {
 		inode = igrab(mark->connector->inode);
 		if (!inode)
 			return;
@@ -180,7 +180,7 @@ static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 		show_mark_fhandle(m, inode);
 		seq_putc(m, '\n');
 		iput(inode);
-	} else if (mark->connector->flags & FSNOTIFY_OBJ_TYPE_VFSMOUNT) {
+	} else if (mark->connector->type == FSNOTIFY_OBJ_TYPE_VFSMOUNT) {
 		struct mount *mnt = real_mount(mark->connector->mnt);
 
 		seq_printf(m, "fanotify mnt_id:%x mflags:%x mask:%x ignored_mask:%x\n",
