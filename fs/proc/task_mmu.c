@@ -678,6 +678,25 @@ static int smaps_hugetlb_range(pte_t *pte, unsigned long hmask,
 }
 #endif /* HUGETLB_PAGE */
 
+static void smap_gather_stats(struct vm_area_struct *vma,
+			     struct mem_size_stats *mss)
+{
+	struct mm_walk smaps_walk = {
+		.pmd_entry = smaps_pte_range,
+#ifdef CONFIG_HUGETLB_PAGE
+		.hugetlb_entry = smaps_hugetlb_range,
+#endif
+		.mm = vma->vm_mm,
+	};
+
+	smaps_walk.private = mss;
+
+	/* mmap_sem is held in m_start */
+	walk_page_vma(vma, &smaps_walk);
+	if (vma->vm_flags & VM_LOCKED)
+		mss->pss_locked += mss->pss;
+}
+
 #define SEQ_PUT_DEC(str, val) \
 		seq_put_decimal_ull_width(m, str, (val) >> 10, 8)
 static int show_smap(struct seq_file *m, void *v)
@@ -686,13 +705,6 @@ static int show_smap(struct seq_file *m, void *v)
 	struct vm_area_struct *vma = v;
 	struct mem_size_stats mss_stack;
 	struct mem_size_stats *mss;
-	struct mm_walk smaps_walk = {
-		.pmd_entry = smaps_pte_range,
-#ifdef CONFIG_HUGETLB_PAGE
-		.hugetlb_entry = smaps_hugetlb_range,
-#endif
-		.mm = vma->vm_mm,
-	};
 	int ret = 0;
 	bool rollup_mode;
 	bool last_vma;
@@ -711,12 +723,7 @@ static int show_smap(struct seq_file *m, void *v)
 		mss = &mss_stack;
 	}
 
-	smaps_walk.private = mss;
-
-	/* mmap_sem is held in m_start */
-	walk_page_vma(vma, &smaps_walk);
-	if (vma->vm_flags & VM_LOCKED)
-		mss->pss_locked += mss->pss;
+	smap_gather_stats(vma, mss);
 
 	if (!rollup_mode) {
 		show_map_vma(m, vma);
