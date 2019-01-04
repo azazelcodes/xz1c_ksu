@@ -63,14 +63,14 @@
  * address TASK_SIZE is never valid.  We also need to make sure that the address doesn't
  * point inside the virtually mapped linear page table.
  */
-#define __access_ok(addr, size, segment)						\
-({											\
-	__chk_user_ptr(addr);								\
-	(likely((unsigned long) (addr) <= (segment).seg)				\
-	 && ((segment).seg == KERNEL_DS.seg						\
-	     || likely(REGION_OFFSET((unsigned long) (addr)) < RGN_MAP_LIMIT)));	\
-})
-#define access_ok(type, addr, size)	__access_ok((addr), (size), get_fs())
+static inline int __access_ok(const void __user *p, unsigned long size)
+{
+	unsigned long addr = (unsigned long)p;
+	unsigned long seg = get_fs().seg;
+	return likely(addr <= seg) &&
+	 (seg == KERNEL_DS.seg || likely(REGION_OFFSET(addr) < RGN_MAP_LIMIT));
+}
+#define access_ok(addr, size)	__access_ok((addr), (size))
 
 /*
  * These are the main single-value transfer routines.  They automatically

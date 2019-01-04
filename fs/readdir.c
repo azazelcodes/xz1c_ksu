@@ -217,7 +217,7 @@ orig_flow:
 #endif
 	buf->result++;
 	dirent = buf->dirent;
-	if (!access_ok(VERIFY_WRITE, dirent,
+	if (!access_ok(dirent,
 			(unsigned long)(dirent->d_name + namlen + 1) -
 				(unsigned long)dirent))
 		goto efault;
@@ -389,7 +389,7 @@ SYSCALL_DEFINE3(getdents, unsigned int, fd,
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
 	struct inode *inode;
 #endif
-	if (!access_ok(VERIFY_WRITE, dirent, count))
+	if (!access_ok(dirent, count))
 		return -EFAULT;
 
 	f = fdget(fd);
@@ -526,7 +526,7 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
 	struct inode *inode;
 #endif
-	if (!access_ok(VERIFY_WRITE, dirent, count))
+	if (!access_ok(dirent, count))
 		return -EFAULT;
 
 	f = fdget(fd);
@@ -631,7 +631,7 @@ orig_flow:
 #endif
 	buf->result++;
 	dirent = buf->dirent;
-	if (!access_ok(VERIFY_WRITE, dirent,
+	if (!access_ok(dirent,
 			(unsigned long)(dirent->d_name + namlen + 1) -
 				(unsigned long)dirent))
 		goto efault;
@@ -903,7 +903,7 @@ COMPAT_SYSCALL_DEFINE3(getdents64, unsigned int, fd,
 	};
 	int error;
 
-	if (!access_ok(VERIFY_WRITE, dirent, count))
+	if (!access_ok(dirent, count))
 		return -EFAULT;
 
 	f = fdget(fd);

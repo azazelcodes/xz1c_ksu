@@ -59,7 +59,7 @@
 
 #endif
 
-#define access_ok(type, addr, size)		\
+#define access_ok(addr, size)		\
 	(__chk_user_ptr(addr), (void)(type),		\
 	 __access_ok((__force unsigned long)(addr), (size), get_fs()))
 
@@ -212,7 +212,7 @@ do {								\
 	__typeof__(size) __pu_size = (size);				\
 									\
 	might_fault();							\
-	if (access_ok(VERIFY_WRITE, __pu_addr, __pu_size))			\
+	if (access_ok(__pu_addr, __pu_size))			\
 		__put_user_size(__pu_val, __pu_addr, __pu_size, __pu_err); \
 									\
 	__pu_err;							\
@@ -340,7 +340,7 @@ do {								\
 	__typeof__(size) __gu_size = (size);				\
 									\
 	might_fault();							\
-	if (access_ok(VERIFY_READ, __gu_addr, __gu_size)) {		\
+	if (access_ok(__gu_addr, __gu_size)) {		\
 		barrier_nospec();					\
 		__get_user_size(__gu_val, __gu_addr, __gu_size, __gu_err); \
 	}								\
@@ -505,7 +505,7 @@ static inline unsigned long clear_user(void __user *addr, unsigned long size)
 {
 	unsigned long ret = size;
 	might_fault();
-	if (likely(access_ok(VERIFY_WRITE, addr, size))) {
+	if (likely(access_ok(addr, size))) {
 		allow_write_to_user(addr, size);
 		ret = __arch_clear_user(addr, size);
 		prevent_write_to_user(addr, size);

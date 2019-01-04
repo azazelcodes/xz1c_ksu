@@ -42,7 +42,7 @@
 #define __access_ok(addr, size, segment) \
 	(((segment).seg & (addr | size | (addr+size))) == 0)
 
-#define access_ok(type, addr, size)				\
+#define access_ok(addr, size)					\
 ({								\
 	__chk_user_ptr(addr);					\
 	__access_ok(((unsigned long)(addr)), (size), get_fs());	\

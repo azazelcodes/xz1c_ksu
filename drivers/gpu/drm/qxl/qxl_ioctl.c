@@ -163,8 +163,7 @@ static int qxl_process_single_command(struct qxl_device *qdev,
 	if (cmd->command_size > PAGE_SIZE - sizeof(union qxl_release_info))
 		return -EINVAL;
 
-	if (!access_ok(VERIFY_READ,
-		       (void *)(unsigned long)cmd->command,
+	if (!access_ok((void *)(unsigned long)cmd->command,
 		       cmd->command_size))
 		return -EFAULT;
 

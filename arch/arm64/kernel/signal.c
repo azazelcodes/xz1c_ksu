@@ -143,7 +143,7 @@ asmlinkage long sys_rt_sigreturn(struct pt_regs *regs)
 
 	frame = (struct rt_sigframe __user *)regs->sp;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
+	if (!access_ok(frame, sizeof (*frame)))
 		goto badframe;
 
 	if (restore_sigframe(regs, frame))
@@ -224,7 +224,7 @@ static struct rt_sigframe __user *get_sigframe(struct ksignal *ksig,
 	/*
 	 * Check that we can actually write to the signal frame.
 	 */
-	if (!access_ok(VERIFY_WRITE, frame, sp_top - sp))
+	if (!access_ok(frame, sp_top - sp))
 		frame = NULL;
 
 	return frame;

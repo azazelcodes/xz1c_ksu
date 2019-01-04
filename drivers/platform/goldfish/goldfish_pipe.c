@@ -238,8 +238,7 @@ static ssize_t goldfish_pipe_read_write(struct file *filp, char __user *buffer,
 		return 0;
 
 	/* Check the buffer range for access */
-	if (!access_ok(is_write ? VERIFY_WRITE : VERIFY_READ,
-			buffer, bufflen))
+	if (unlikely(!access_ok(buffer, bufflen)))
 		return -EFAULT;
 
 	/* Serialize access to the pipe */

@@ -105,7 +105,7 @@ void xtensa_backtrace_user(struct pt_regs *regs, unsigned int depth,
 		psp -= 4;
 
 		/* Check if the region is OK to access. */
-		if (!access_ok(VERIFY_READ, psp, sizeof(frame_start)))
+		if (!access_ok(psp, sizeof(frame_start)))
 			return;
 		/* Copy a1, a0 from user space stack frame. */
 		if (__copy_from_user_inatomic(&frame_start, psp,

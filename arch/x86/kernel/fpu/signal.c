@@ -159,7 +159,7 @@ int copy_fpstate_to_sigframe(void __user *buf, void __user *buf_fx, int size)
 	ia32_fxstate &= (config_enabled(CONFIG_X86_32) ||
 			 config_enabled(CONFIG_IA32_EMULATION));
 
-	if (!access_ok(VERIFY_WRITE, buf, size))
+	if (!access_ok(buf, size))
 		return -EACCES;
 
 	if (!static_cpu_has(X86_FEATURE_FPU))
@@ -262,7 +262,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
 		return 0;
 	}
 
-	if (!access_ok(VERIFY_READ, buf, size)) {
+	if (!access_ok(buf, size)) {
 		fpu__clear(fpu);
 		return -EACCES;
 	}
