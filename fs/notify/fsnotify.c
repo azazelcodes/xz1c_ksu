@@ -213,7 +213,7 @@ static struct fsnotify_mark *fsnotify_next_mark(struct fsnotify_mark *mark)
  * notification event in whatever means they feel necessary.
  */
 int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
-	     const unsigned char *file_name, u32 cookie)
+	     const struct qstr *file_name, u32 cookie)
 {
 	struct fsnotify_iter_info iter_info = {};
 	struct mount *mnt;
@@ -288,7 +288,7 @@ int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
 		iter_info.vfsmount_mark = vfsmount_mark;
 
 		ret = send_to_group(to_tell, mask, data, data_is, cookie,
-				    file_name, &iter_info);
+				    file_name->name, &iter_info);
 
 		if (ret && (mask & ALL_FSNOTIFY_PERM_EVENTS))
 			goto out;

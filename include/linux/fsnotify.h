@@ -91,7 +91,7 @@ static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
 	u32 fs_cookie = fsnotify_get_cookie();
 	__u32 old_dir_mask = (FS_EVENT_ON_CHILD | FS_MOVED_FROM);
 	__u32 new_dir_mask = (FS_EVENT_ON_CHILD | FS_MOVED_TO);
-	const unsigned char *new_name = moved->d_name.name;
+	const struct qstr *new_name = &moved->d_name;
 
 	if (old_dir == new_dir)
 		old_dir_mask |= FS_DN_RENAME;
@@ -172,7 +172,7 @@ static inline void fsnotify_link(struct inode *dir, struct inode *inode, struct 
 	fsnotify_link_count(inode);
 	audit_inode_child(dir, new_dentry, AUDIT_TYPE_CHILD_CREATE);
 
-	fsnotify(dir, FS_CREATE, inode, FSNOTIFY_EVENT_INODE, new_dentry->d_name.name, 0);
+	fsnotify(dir, FS_CREATE, inode, FSNOTIFY_EVENT_INODE, &new_dentry->d_name, 0);
 }
 
 /*
