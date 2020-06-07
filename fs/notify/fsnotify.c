@@ -126,11 +126,9 @@ int __fsnotify_parent(struct path *path, struct dentry *dentry, __u32 mask)
 }
 EXPORT_SYMBOL_GPL(__fsnotify_parent);
 
-static int send_to_group(struct inode *to_tell,
-			 __u32 mask, const void *data,
-			 int data_is, u32 cookie,
-			 const struct qstr *file_name,
-			 struct fsnotify_iter_info *iter_info)
+static int send_to_group(__u32 mask, const void *data, int data_type,
+			 struct inode *dir, const struct qstr *file_name,
+			 u32 cookie, struct fsnotify_iter_info *iter_info)
 {
 	struct fsnotify_mark *inode_mark = fsnotify_iter_inode_mark(iter_info);
 	struct fsnotify_mark *vfsmount_mark = fsnotify_iter_vfsmount_mark(iter_info);
@@ -169,17 +167,14 @@ static int send_to_group(struct inode *to_tell,
 			vfsmount_test_mask &= ~inode_mark->ignored_mask;
 	}
 
-	pr_debug("%s: group=%p to_tell=%p mask=%x inode_mark=%p"
-		 " inode_test_mask=%x vfsmount_mark=%p vfsmount_test_mask=%x"
-		 " data=%p data_is=%d cookie=%d\n",
-		 __func__, group, to_tell, mask, inode_mark,
-		 inode_test_mask, vfsmount_mark, vfsmount_test_mask, data,
-		 data_is, cookie);
+	pr_debug("%s: group=%p mask=%x marks_mask=%x marks_ignored_mask=%x data=%p data_type=%d dir=%p cookie=%d\n",
+		 __func__, group, mask, marks_mask, marks_ignored_mask,
+		 data, data_type, dir, cookie);
 
 	if (!inode_test_mask && !vfsmount_test_mask)
 		return 0;
 
-	return group->ops->handle_event(group, to_tell, mask, data, data_is,
+	return group->ops->handle_event(group, mask, data, data_type, dir,
 					file_name, cookie, iter_info);
 }
 
@@ -212,7 +207,7 @@ static struct fsnotify_mark *fsnotify_next_mark(struct fsnotify_mark *mark)
  * out to all of the registered fsnotify_group.  Those groups can then use the
  * notification event in whatever means they feel necessary.
  */
-int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
+int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_type,
 	     const struct qstr *file_name, u32 cookie)
 {
 	struct fsnotify_iter_info iter_info = {};
@@ -287,8 +282,8 @@ int fsnotify(struct inode *to_tell, __u32 mask, const void *data, int data_is,
 		iter_info.inode_mark = inode_mark;
 		iter_info.vfsmount_mark = vfsmount_mark;
 
-		ret = send_to_group(to_tell, mask, data, data_is, cookie,
-				    file_name->name, &iter_info);
+		ret = send_to_group(mask, data, data_type, dir, file_name->name,
+				    cookie, &iter_info);
 
 		if (ret && (mask & ALL_FSNOTIFY_PERM_EVENTS))
 			goto out;

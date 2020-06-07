@@ -170,6 +170,39 @@ init: __maybe_unused
 	return event;
 }
 
+/*
+ * Get cached fsid of the filesystem containing the object from any connector.
+ * All connectors are supposed to have the same fsid, but we do not verify that
+ * here.
+ */
+static __kernel_fsid_t fanotify_get_fsid(struct fsnotify_iter_info *iter_info)
+{
+	int type;
+	__kernel_fsid_t fsid = {};
+
+	fsnotify_foreach_obj_type(type) {
+		struct fsnotify_mark_connector *conn;
+
+		if (!fsnotify_iter_should_report_type(iter_info, type))
+			continue;
+
+		conn = READ_ONCE(iter_info->marks[type]->connector);
+		/* Mark is just getting destroyed or created? */
+		if (!conn)
+			continue;
+		if (!(conn->flags & FSNOTIFY_CONN_FLAG_HAS_FSID))
+			continue;
+		/* Pairs with smp_wmb() in fsnotify_add_mark_list() */
+		smp_rmb();
+		fsid = conn->fsid;
+		if (WARN_ON_ONCE(!fsid.val[0] && !fsid.val[1]))
+			continue;
+		return fsid;
+	}
+
+	return fsid;
+}
+
 static int fanotify_handle_event(struct fsnotify_group *group,
 				 struct inode *inode,
 				 u32 mask, const void *data, int data_type,
@@ -194,8 +227,7 @@ static int fanotify_handle_event(struct fsnotify_group *group,
 	if (!fanotify_should_send_event(iter_info, mask, data, data_type))
 		return 0;
 
-	pr_debug("%s: group=%p inode=%p mask=%x\n", __func__, group, inode,
-		 mask);
+	pr_debug("%s: group=%p mask=%x\n", __func__, group, mask);
 
 	event = fanotify_alloc_event(inode, mask, data);
 	if (unlikely(!event))
