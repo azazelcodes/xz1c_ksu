@@ -9,6 +9,9 @@ jobs:
     steps:
     - name: Checkout kernel source
       uses: actions/checkout@v5.0.0
+      with:
+        with: submodules: recursive
+        fetch-depth: 0
 
     - name: Checkout zipper
       uses: actions/checkout@v2
