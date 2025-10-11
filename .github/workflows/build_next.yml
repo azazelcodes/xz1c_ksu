@@ -27,3 +27,9 @@ jobs:
         compiler: aosp-clang/clang-r487747c
         defconfig: lineage-msm8998-yoshino-lilac_defconfig
         image: Image.gz-dtb
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: lilac_build_ksunext
+        path: ${{ steps.build.outputs.outfile }}
