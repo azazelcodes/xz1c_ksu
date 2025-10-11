@@ -20,7 +20,7 @@ jobs:
         path: zipper
 
     - name: Android kernel build
-      uses: lemniskett/android-kernel-actions@master
+      uses: azazelcodes/android-kernel-actions@master
       id: build
       with:
         arch: arm64
