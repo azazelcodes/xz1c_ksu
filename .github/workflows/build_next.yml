@@ -24,6 +24,6 @@ jobs:
       id: build
       with:
         arch: arm64
-        compiler: aosp-clang/master/clang-r487747c
+        compiler: clang/17
         defconfig: lineage-msm8998-yoshino-lilac_defconfig
         image: Image.gz-dtb
