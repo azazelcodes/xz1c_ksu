@@ -1,0 +1,6 @@
+name: Build (KSUNext)
+
+on:
+  workflow_dispatch:
+
+jobs:
