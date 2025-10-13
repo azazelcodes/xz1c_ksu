@@ -16,6 +16,7 @@ jobs:
 
       - name: Checkout zipper
         uses: actions/checkout@v5.0.0
+        id: setup
         with:
           repository: lemniskett/AnyKernel3
 
