@@ -19,6 +19,7 @@ jobs:
         id: setup
         with:
           repository: lemniskett/AnyKernel3
+          path: zipper
 
       - name: Android kernel build
         uses: azazelcodes/android-kernel-actions@master
