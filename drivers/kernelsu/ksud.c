@@ -476,7 +476,11 @@ static bool check_init_path(char *dpath)
 	return true;
 }
 
+#ifdef CONFIG_KSU_SUSFS
 static bool is_init_rc(struct file *fp)
+#else
+bool is_init_rc(struct file *fp)
+#endif
 {
 #ifdef CONFIG_KSU_MANUAL_HOOK
 	if (!ksu_init_rc_hook) {
@@ -559,6 +563,7 @@ void ksu_handle_sys_read(unsigned int fd)
 
 skip:
 	fput(file);
+#endif
 }
 
 static unsigned int volumedown_pressed_count = 0;
