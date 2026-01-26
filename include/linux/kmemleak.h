@@ -80,8 +80,8 @@ static inline void kmemleak_alloc_percpu(const void __percpu *ptr, size_t size,
 					 gfp_t gfp)
 {
 }
-extern void kmemleak_vmalloc(const struct vm_struct *area, size_t size,
-			     gfp_t gfp) __ref;
+static inline void kmemleak_vmalloc(const struct vm_struct *area, size_t size,
+				    gfp_t gfp)
 {
 }
 static inline void kmemleak_free(const void *ptr)
