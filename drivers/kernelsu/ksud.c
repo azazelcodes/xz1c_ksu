@@ -527,10 +527,6 @@ void ksu_handle_sys_read(unsigned int fd)
 	if (!is_init_rc(file)) {
 		goto skip;
 	}
-#else
-	/* Do nothing */
-	return;
-#endif
 
 	// we only process the first read
 	static bool rc_hooked = false;
