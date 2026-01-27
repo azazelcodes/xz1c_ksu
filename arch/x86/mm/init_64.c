@@ -1204,7 +1204,7 @@ static unsigned long probe_memory_block_size(void)
 	/* start from 2g */
 	unsigned long bz = 1UL<<31;
 
-	if (totalram_pages >= (64ULL << (30 - PAGE_SHIFT))) {
+	if (totalram_pages() >= (64ULL << (30 - PAGE_SHIFT))) {
 		pr_info("Using 2GB memory block size for large-memory system\n");
 		return 2UL * 1024 * 1024 * 1024;
 	}
