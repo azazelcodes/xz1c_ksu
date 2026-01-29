@@ -647,7 +647,7 @@ void ksu_ksud_exit(void)
 	is_boot_phase = false;
 }
 
-#ifdef CONFIG_KSU_SUSFS
+#if defined(CONFIG_KSU_SUSFS) || defined(CONFIG_KSU_MANUAL_HOOK)
 void ksu_handle_vfs_fstat(int fd, loff_t *kstat_size_ptr) {
     loff_t new_size = *kstat_size_ptr + ksu_rc_len;
     struct file *file = fget(fd);
@@ -662,4 +662,4 @@ void ksu_handle_vfs_fstat(int fd, loff_t *kstat_size_ptr) {
     }
     fput(file);
 }
-#endif // #ifdef CONFIG_KSU_SUSFS
+#endif // #ifdef CONFIG_KSU_SUSFS ||
