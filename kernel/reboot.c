@@ -289,10 +289,10 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 	char buffer[256];
 	int ret = 0;
 
-#ifdef defined(CONFIG_KSU) && !defined(CONFIG_KSU_SUSFS)
+#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_SUSFS)
 	ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
 #endif
-ifdef CONFIG_KSU_SUSFS
+#ifdef CONFIG_KSU_SUSFS
 	ret = ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
 	if (ret) {
 		goto orig_flow;
