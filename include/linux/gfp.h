@@ -81,6 +81,7 @@ struct vm_area_struct;
 #define __GFP_WRITE	((__force gfp_t)___GFP_WRITE)
 #define __GFP_HARDWALL   ((__force gfp_t)___GFP_HARDWALL)
 #define __GFP_THISNODE	((__force gfp_t)___GFP_THISNODE)
+#define __GFP_ACCOUNT	((__force gfp_t)___GFP_ACCOUNT)
 
 /*
  * Watermark modifiers -- controls access to emergency reserves
