@@ -331,7 +331,7 @@ static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 out_free_devname:
 	kfree_const(mnt->mnt_devname);
  #endif
-+out_free_cache:
+out_free_cache:
 	kmem_cache_free(mnt_cache, mnt);
 	return NULL;
 }
