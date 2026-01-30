@@ -218,11 +218,6 @@ static inline int ida_alloc_max(struct ida *ida, unsigned int max, gfp_t gfp)
 	return ida_alloc_range(ida, 0, max, gfp);
 }
 
-static inline void ida_init(struct ida *ida)
-{
-	INIT_RADIX_TREE(&ida->ida_rt, IDR_RT_MARKER | GFP_NOWAIT);
-}
-
 #define ida_simple_get(ida, start, end, gfp)	\
 			ida_alloc_range(ida, start, (end) - 1, gfp)
 #define ida_simple_remove(ida, id)	ida_free(ida, id)
