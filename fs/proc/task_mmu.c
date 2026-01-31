@@ -625,7 +625,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 
 	if (!page)
 		return;
-	smaps_account(mss, page, PAGE_SIZE, pte_young(*pte), pte_dirty(*pte));
+	smaps_account(mss, page, PAGE_SIZE, pte_young(*pte), pte_dirty(*pte), locked);
 }
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
@@ -650,7 +650,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
 	else
 		VM_BUG_ON_PAGE(1, page);
 	smaps_account(mss, page, HPAGE_PMD_SIZE,
-			pmd_young(*pmd), pmd_dirty(*pmd));
+			pmd_young(*pmd), pmd_dirty(*pmd), locked);
 }
 #else
 static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
@@ -978,7 +978,7 @@ const struct file_operations proc_pid_smaps_rollup_operations = {
 	.open		= smaps_rollup_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
-	.release	= smaps_map_release,
+	.release	= smaps_rollup_release,
 };
 
 enum clear_refs_types {
