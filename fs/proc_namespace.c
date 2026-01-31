@@ -111,7 +111,7 @@ static int show_vfsmnt(struct seq_file *m, struct vfsmount *mnt)
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	if (susfs_hide_sus_mnts_for_non_su_procs &&
 			r->mnt_id >= DEFAULT_KSU_MNT_ID &&
-			!susfs_is_current_ksu_domain()
+			!susfs_is_current_ksu_domain())
 		return 0;
 #endif
 
