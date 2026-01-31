@@ -537,6 +537,8 @@ static int s_show(struct seq_file *m, void *p)
 	if (!iter->name[0])
 		return 0;
 
+	value = iter->show_value ? iter->value : 0;
+
 	if (iter->module_name[0]) {
 		char type;
 
@@ -546,7 +548,7 @@ static int s_show(struct seq_file *m, void *p)
 		 */
 		type = iter->exported ? toupper(iter->type) :
 					tolower(iter->type);
-		seq_printf(m, "%pK %c %s\t[%s]\n", (void *)iter->value,
+		seq_printf(m, KALLSYM_FMT " %c %s\t[%s]\n", value,
 			   type, iter->name, iter->module_name);
 	} else
 #ifndef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
