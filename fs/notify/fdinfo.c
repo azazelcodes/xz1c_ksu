@@ -12,7 +12,6 @@
 #include <linux/seq_file.h>
 #include <linux/proc_fs.h>
 #include <linux/exportfs.h>
-
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 #include <linux/susfs_def.h>
 #endif
@@ -91,12 +90,14 @@ static void show_mark_fhandle(struct seq_file *m, struct inode *inode)
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark, struct file *file)
 #else
-
 static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 #endif
 {
 	struct inotify_inode_mark *inode_mark;
 	struct inode *inode;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	struct mount *mnt = NULL;
+#endif
 
 	if (!(mark->flags & FSNOTIFY_MARK_FLAG_ALIVE) ||
 	    !(mark->flags & FSNOTIFY_MARK_FLAG_INODE))
@@ -105,17 +106,12 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 	inode_mark = container_of(mark, struct inotify_inode_mark, fsn_mark);
 	inode = igrab(mark->inode);
 	if (inode) {
-		/*
-		 * IN_ALL_EVENTS represents all of the mask bits
-		 * that we expose to userspace.  There is at
-		 * least one bit (FS_EVENT_ON_CHILD) which is
-		 * used only internally to the kernel.
-		 */
 		u32 mask = mark->mask & IN_ALL_EVENTS;
-
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-		if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) &&
-				unlikely(inode->i_state & INODE_STATE_SUS_KSTAT)) {
+		mnt = real_mount(file->f_path.mnt);
+		if (likely(susfs_is_current_proc_umounted()) &&
+					mnt->mnt_id >= DEFAULT_KSU_MNT_ID)
+		{
 			struct path path;
 			char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
 			char *dpath;
@@ -129,9 +125,9 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 			if (kern_path(dpath, 0, &path)) {
 				goto out_free_pathname;
 			}
-			seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
-			   inode_mark->wd, path.dentry->d_inode->i_ino, path.dentry->d_inode->i_sb->s_dev,
-			   mask, mark->ignored_mask);
+			seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
+					inode_mark->wd, path.dentry->d_inode->i_ino, path.dentry->d_inode->i_sb->s_dev,
+					mask, mark->ignored_mask);
 			show_mark_fhandle(m, path.dentry->d_inode);
 			seq_putc(m, '\n');
 			iput(inode);
@@ -143,7 +139,13 @@ out_free_pathname:
 		}
 out_seq_printf:
 #endif
-
+		/*
+		 * IN_ALL_EVENTS represents all of the mask bits
+		 * that we expose to userspace.  There is at
+		 * least one bit (FS_EVENT_ON_CHILD) which is
+		 * used only internally to the kernel.
+		 */
+		//u32 mask = mark->mask & IN_ALL_EVENTS;
 		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
 			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
 			   mask, mark->ignored_mask);

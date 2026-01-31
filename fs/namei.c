@@ -37,8 +37,7 @@
 #include <linux/hash.h>
 #include <linux/init_task.h>
 #include <asm/uaccess.h>
-
-#if defined(CONFIG_KSU_SUSFS_SUS_PATH) || defined(CONFIG_KSU_SUSFS_OPEN_REDIRECT)
+#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
 #include <linux/susfs_def.h>
 #endif
 
@@ -3664,7 +3663,7 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
 
 #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-	if (!IS_ERR(filp) && unlikely(filp->f_inode->i_state & INODE_STATE_OPEN_REDIRECT) && current_uid().val < 2000) {
+	if (!IS_ERR(filp) && unlikely(filp->f_inode->i_mapping->flags & BIT_OPEN_REDIRECT) && current_uid().val < 2000) {
 		fake_pathname = susfs_get_redirected_path(filp->f_inode->i_ino);
 		if (!IS_ERR(fake_pathname)) {
 			restore_nameidata();

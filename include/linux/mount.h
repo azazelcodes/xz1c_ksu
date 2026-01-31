@@ -15,6 +15,7 @@
 #include <linux/spinlock.h>
 #include <linux/seqlock.h>
 #include <linux/atomic.h>
+#include <linux/android_kabi.h>
 
 struct super_block;
 struct vfsmount;
@@ -67,11 +68,15 @@ struct vfsmount {
 	struct dentry *mnt_root;	/* root of the mounted tree */
 	struct super_block *mnt_sb;	/* pointer to superblock */
 	int mnt_flags;
-	void *data;
-
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_KABI_RESERVE(3);
 #ifdef CONFIG_KSU_SUSFS
-	u64 susfs_mnt_id_backup;
+	ANDROID_KABI_USE(4, u64 susfs_mnt_id_backup);
+#else
+ 	ANDROID_KABI_RESERVE(4);
 #endif
+	void *data;
 };
 
 struct file; /* forward dec */
