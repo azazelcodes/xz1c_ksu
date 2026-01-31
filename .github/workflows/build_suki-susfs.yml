@@ -1,0 +1,36 @@
+name: Build (SukiSU + SUSFS)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kernel source
+        uses: actions/checkout@v5.0.0
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: suki-susfs
+
+      - name: Checkout zipper
+        uses: actions/checkout@v5.0.0
+        with:
+          repository: lemniskett/AnyKernel3
+          path: zipper
+
+      - name: Android kernel build
+        uses: azazelcodes/android-kernel-actions@master
+        id: build
+        with:
+          arch: arm64
+          compiler: aosp-clang/clang-r487747c
+          defconfig: lineage-msm8998-yoshino-lilac_defconfig
+          image: Image.gz-dtb
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: lilac_build_sukisu-susfs
+          path: ${{ steps.build.outputs.outfile }}
