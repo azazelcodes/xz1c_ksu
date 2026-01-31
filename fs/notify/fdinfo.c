@@ -91,15 +91,12 @@ static void show_mark_fhandle(struct seq_file *m, struct inode *inode)
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark, struct file *file)
 #else
+
 static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 #endif
 {
 	struct inotify_inode_mark *inode_mark;
 	struct inode *inode;
-
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	struct mount *mnt = NULL;
-#endif
 
 	if (!(mark->flags & FSNOTIFY_MARK_FLAG_ALIVE) ||
 	    !(mark->flags & FSNOTIFY_MARK_FLAG_INODE))
@@ -117,10 +114,8 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 		u32 mask = mark->mask & IN_ALL_EVENTS;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-		mnt = real_mount(file->f_path.mnt);
-		if (likely(susfs_is_current_proc_umounted()) &&
-					mnt->mnt_id >= DEFAULT_KSU_MNT_ID)
-		{
+		if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) &&
+				unlikely(inode->i_state & INODE_STATE_SUS_KSTAT)) {
 			struct path path;
 			char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
 			char *dpath;
