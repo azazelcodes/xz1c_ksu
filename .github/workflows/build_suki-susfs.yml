@@ -1,0 +1,10 @@
+name: Build (SukiSU + SUSFS)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: Workflow ran on wrong branch. Rerun on "suki-susfs"!
