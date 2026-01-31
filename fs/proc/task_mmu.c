@@ -505,7 +505,9 @@ struct mem_size_stats {
 	unsigned long private_dirty;
 	unsigned long referenced;
 	unsigned long anonymous;
+	unsigned long lazyfree;
 	unsigned long anonymous_thp;
+	unsigned long shmem_thp;
 	unsigned long swap;
 	unsigned long shared_hugetlb;
 	unsigned long private_hugetlb;
@@ -552,8 +554,11 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
 {
 	int mapcount;
 
-	if (PageAnon(page))
+	if (PageAnon(page)) {
 		mss->anonymous += size;
+		if (!PageSwapBacked(page) && !dirty && !PageDirty(page))
+			mss->lazyfree += size;
+	}
 
 	mss->resident += size;
 	/* Accumulate the size in pages that have been accessed. */
@@ -622,7 +627,14 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
 	page = follow_trans_huge_pmd(vma, addr, pmd, FOLL_DUMP);
 	if (IS_ERR_OR_NULL(page))
 		return;
-	mss->anonymous_thp += HPAGE_PMD_SIZE;
+	if (PageAnon(page))
+		mss->anonymous_thp += HPAGE_PMD_SIZE;
+	else if (PageSwapBacked(page))
+		mss->shmem_thp += HPAGE_PMD_SIZE;
+	else if (is_zone_device_page(page))
+		/* pass */;
+	else
+		VM_BUG_ON_PAGE(1, page);
 	smaps_account(mss, page, HPAGE_PMD_SIZE,
 			pmd_young(*pmd), pmd_dirty(*pmd));
 }
