@@ -73,7 +73,7 @@ static int ladder_select_state(struct cpuidle_driver *drv,
 
 	/* Special case when user has set very strict latency requirement */
 	if (unlikely(latency_req == 0)) {
-		ladder_do_selection(dev, last_idx, 0);
+		ladder_do_selection(dev, ldev, last_idx, 0);
 		return 0;
 	}
 
@@ -90,7 +90,7 @@ static int ladder_select_state(struct cpuidle_driver *drv,
 		last_state->stats.promotion_count++;
 		last_state->stats.demotion_count = 0;
 		if (last_state->stats.promotion_count >= last_state->threshold.promotion_count) {
-			ladder_do_selection(dev, last_idx, last_idx + 1);
+			ladder_do_selection(dev, ldev, last_idx, last_idx + 1);
 			return last_idx + 1;
 		}
 	}
@@ -106,7 +106,7 @@ static int ladder_select_state(struct cpuidle_driver *drv,
 			if (drv->states[i].exit_latency <= latency_req)
 				break;
 		}
-		ladder_do_selection(dev, last_idx, i);
+		ladder_do_selection(dev, ldev, last_idx, i);
 		return i;
 	}
 
@@ -115,7 +115,7 @@ static int ladder_select_state(struct cpuidle_driver *drv,
 		last_state->stats.demotion_count++;
 		last_state->stats.promotion_count = 0;
 		if (last_state->stats.demotion_count >= last_state->threshold.demotion_count) {
-			ladder_do_selection(dev, last_idx, last_idx - 1);
+			ladder_do_selection(dev, ldev, last_idx, last_idx - 1);
 			return last_idx - 1;
 		}
 	}
