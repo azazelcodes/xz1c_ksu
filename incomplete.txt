@@ -9,4 +9,4 @@ didnt implement any of the arch/*, soc/oppo, or lz4kd changes
 fs/proc/task_mmu.c - havent checked
 kernel/sched/core.c - requires (at least) MissElysia/android_kernel_oppo_sdm660/commit/61e7e4fba11ab70a2f3b8f44cd86e78eb5d6d3e6
 fs/namespace.c - Im unsure tbh ; verdict 1h later: I think its done? why was I unsure
-fs/devpts/inode.c - requires (at least) MissElysia/android_kernel_oppo_sdm660/commit/37dcd269a461b7f1c6d0f172ec12bbea059646d5
+fs/devpts/inode.c - READY TO IMPLEMENT
