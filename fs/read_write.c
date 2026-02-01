@@ -559,11 +559,6 @@ static inline void file_pos_write(struct file *file, loff_t pos)
 		file->f_pos = pos;
 }
 
-#if defined(CONFIG_KSU)
-extern bool ksu_init_rc_hook __read_mostly;
-extern __attribute__((cold)) void ksu_handle_sys_read(unsigned int fd);
-#endif
-
 #ifdef CONFIG_KSU_SUSFS
 extern bool ksu_init_rc_hook __read_mostly;
 extern __attribute__((cold)) void ksu_handle_sys_read(unsigned int fd);
