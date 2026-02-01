@@ -1702,7 +1702,7 @@ out_ret:
 	return retval;
 }
 
-#if defined(CONFIG_KSU) && 0
+#ifdef CONFIG_KSU
 __attribute__((hot))
 extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr,
 				void *argv, void *envp, int *flags);
@@ -1715,7 +1715,7 @@ int do_execve(struct filename *filename,
 	struct user_arg_ptr argv = { .ptr.native = __argv };
 	struct user_arg_ptr envp = { .ptr.native = __envp };
 
-#if defined(CONFIG_KSU) && 0
+#ifdef CONFIG_KSU
 	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
 #endif
 
@@ -1747,7 +1747,7 @@ static int compat_do_execve(struct filename *filename,
 		.ptr.compat = __envp,
 	};
 
-#if defined(CONFIG_KSU) && 0 // 32-bit ksud and 32-on-64 support
+#ifdef CONFIG_KSU // 32-bit ksud and 32-on-64 support
 	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
 #endif
 
@@ -1800,22 +1800,11 @@ void set_dumpable(struct mm_struct *mm, int value)
 	} while (cmpxchg(&mm->flags, old, new) != old);
 }
 
-#if defined(CONFIG_KSU) && defined(CONFIG_KSU_MANUAL_HOOK)
-__attribute__((hot))
-extern int ksu_handle_execve_sucompat(int *fd,        const char __user **filename_user,
-                                void *__never_use_argv,        void *__never_use_envp,
-                                int *__never_use_flags);
-#endif
-
 SYSCALL_DEFINE3(execve,
 		const char __user *, filename,
 		const char __user *const __user *, argv,
 		const char __user *const __user *, envp)
 {
-#if defined(CONFIG_KSU) && defined(CONFIG_KSU_MANUAL_HOOK)
-        ksu_handle_execve_sucompat((int *)AT_FDCWD, &filename, NULL, NULL, NULL);
-#endif
-
 	return do_execve(getname(filename), argv, envp);
 }
 
@@ -1837,10 +1826,6 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
 	const compat_uptr_t __user *, argv,
 	const compat_uptr_t __user *, envp)
 {
-#if defined(CONFIG_KSU) && defined(CONFIG_KSU_MANUAL_HOOK) // 32-bit ksud and 32-on-64 support
-        ksu_handle_execve_sucompat((int *)AT_FDCWD, &filename, NULL, NULL, NULL);
-#endif
-
 	return compat_do_execve(getname(filename), argv, envp);
 }
 
