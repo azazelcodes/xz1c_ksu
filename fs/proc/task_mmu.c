@@ -869,23 +869,23 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
 		   "MMUPageSize:    %8lu kB\n"
 		   "Locked:         %8lu kB\n",
 		   (vma->vm_end - vma->vm_start) >> 10,
-		   mss.resident >> 10,
-		   (unsigned long)(mss.pss >> (10 + PSS_SHIFT)),
-		   mss.shared_clean  >> 10,
-		   mss.shared_dirty  >> 10,
-		   mss.private_clean >> 10,
-		   mss.private_dirty >> 10,
-		   mss.referenced >> 10,
-		   mss.anonymous >> 10,
-		   mss.anonymous_thp >> 10,
-		   mss.shared_hugetlb >> 10,
-		   mss.private_hugetlb >> 10,
-		   mss.swap >> 10,
-		   (unsigned long)(mss.swap_pss >> (10 + PSS_SHIFT)),
+		   mss->resident >> 10,
+		   (unsigned long)(mss->pss >> (10 + PSS_SHIFT)),
+		   mss->shared_clean  >> 10,
+		   mss->shared_dirty  >> 10,
+		   mss->private_clean >> 10,
+		   mss->private_dirty >> 10,
+		   mss->referenced >> 10,
+		   mss->anonymous >> 10,
+		   mss->anonymous_thp >> 10,
+		   mss->shared_hugetlb >> 10,
+		   mss->private_hugetlb >> 10,
+		   mss->swap >> 10,
+		   (unsigned long)(mss->swap_pss >> (10 + PSS_SHIFT)),
 		   vma_kernel_pagesize(vma) >> 10,
 		   vma_mmu_pagesize(vma) >> 10,
 		   (vma->vm_flags & VM_LOCKED) ?
-			(unsigned long)(mss.pss >> (10 + PSS_SHIFT)) : 0);
+			(unsigned long)(mss->pss >> (10 + PSS_SHIFT)) : 0);
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MAP
 bypass_orig_flow:
