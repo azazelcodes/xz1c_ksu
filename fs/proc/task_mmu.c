@@ -774,6 +774,11 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
 
 	/* mmap_sem is held in m_start */
 	walk_page_vma(vma, &smaps_walk);
+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+	if (vma->vm_file &&
+		unlikely(file_inode(vma->vm_file)->i_mapping->flags & BIT_SUS_MAPS) &&
+		susfs_is_current_proc_umounted())
+	{
 	if (vma->vm_flags & VM_LOCKED)
 		mss->pss_locked += mss->pss;
 
@@ -834,7 +839,57 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
 			   mss->swap >> 10,
 			   (unsigned long)(mss->swap_pss >> (10 + PSS_SHIFT)),
 			   (unsigned long)(mss->pss >> (10 + PSS_SHIFT)));
+		goto bypass_orig_flow;
+	}
+#endif
+	show_map_vma(m, vma, is_pid);
 
+	if (vma_get_anon_name(vma)) {
+		seq_puts(m, "Name:           ");
+		seq_print_vma_name(m, vma);
+		seq_putc(m, '\n');
+	}
+
+	seq_printf(m,
+		   "Size:           %8lu kB\n"
+		   "Rss:            %8lu kB\n"
+		   "Pss:            %8lu kB\n"
+		   "Shared_Clean:   %8lu kB\n"
+		   "Shared_Dirty:   %8lu kB\n"
+		   "Private_Clean:  %8lu kB\n"
+		   "Private_Dirty:  %8lu kB\n"
+		   "Referenced:     %8lu kB\n"
+		   "Anonymous:      %8lu kB\n"
+		   "AnonHugePages:  %8lu kB\n"
+		   "Shared_Hugetlb: %8lu kB\n"
+		   "Private_Hugetlb: %7lu kB\n"
+		   "Swap:           %8lu kB\n"
+		   "SwapPss:        %8lu kB\n"
+		   "KernelPageSize: %8lu kB\n"
+		   "MMUPageSize:    %8lu kB\n"
+		   "Locked:         %8lu kB\n",
+		   (vma->vm_end - vma->vm_start) >> 10,
+		   mss.resident >> 10,
+		   (unsigned long)(mss.pss >> (10 + PSS_SHIFT)),
+		   mss.shared_clean  >> 10,
+		   mss.shared_dirty  >> 10,
+		   mss.private_clean >> 10,
+		   mss.private_dirty >> 10,
+		   mss.referenced >> 10,
+		   mss.anonymous >> 10,
+		   mss.anonymous_thp >> 10,
+		   mss.shared_hugetlb >> 10,
+		   mss.private_hugetlb >> 10,
+		   mss.swap >> 10,
+		   (unsigned long)(mss.swap_pss >> (10 + PSS_SHIFT)),
+		   vma_kernel_pagesize(vma) >> 10,
+		   vma_mmu_pagesize(vma) >> 10,
+		   (vma->vm_flags & VM_LOCKED) ?
+			(unsigned long)(mss.pss >> (10 + PSS_SHIFT)) : 0);
+
+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+bypass_orig_flow:
+#endif
 	if (!rollup_mode) {
 		show_smap_vma_flags(m, vma);
 	}
@@ -1433,6 +1488,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 	unsigned long start_vaddr;
 	unsigned long end_vaddr;
 	int ret = 0, copied = 0;
+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+	struct vm_area_struct *vma;
+#endif
 
 	if (!mm || !atomic_inc_not_zero(&mm->mm_users))
 		goto out;
@@ -1491,6 +1549,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 		down_read(&mm->mmap_sem);
 		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
 		up_read(&mm->mmap_sem);
+#ifdef CONFIG_KSU_SUSFS_SUS_MAP
+		vma = find_vma(mm, start_vaddr);
+		if (vma && vma->vm_file) {
+			struct inode *inode = file_inode(vma->vm_file);
+			if (unlikely(inode->i_mapping->flags & BIT_SUS_MAPS) && susfs_is_current_proc_umounted()) {
+				pm.buffer->pme = 0;
+			}
+		}
+#endif
 		start_vaddr = end;
 
 		len = min(count, PM_ENTRY_BYTES * pm.pos);

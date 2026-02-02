@@ -6,5 +6,5 @@ some old susfs I tried is still here. revert efcda68!!
 
 didnt implement any of the arch/*, soc/oppo, or lz4kd changes
 
-fs/proc/task_mmu.c - changes up to Mar 22, 2012 [b764375], find another way
+fs/proc/task_mmu.c - changes up to Mar 22, 2012 [b764375], I think I did it though?
 fs/namespace.c - Im unsure tbh ; verdict 1h later: I think its done? why was I unsure
