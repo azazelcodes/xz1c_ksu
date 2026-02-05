@@ -956,19 +956,6 @@ struct user_struct {
 #if defined(CONFIG_PERF_EVENTS) || defined(CONFIG_BPF_SYSCALL)
 	atomic_long_t locked_vm;
 #endif
-
-    #ifdef CONFIG_KSU_SUSFS
-      u64 android_kabi_reserved2;
-    #endif
-      // Android KABI reserved fields
-      u64 android_kabi_reserved1;
-      u64 android_kabi_reserved3;
-      u64 android_kabi_reserved4;
-      u64 android_kabi_reserved5;
-      u64 android_kabi_reserved6;
-      u64 android_kabi_reserved7;
-      u64 android_kabi_reserved8;
-
 };
 
 extern int uids_sysfs_init(void);
@@ -2146,15 +2133,6 @@ struct task_struct {
 	unsigned long	task_state_change;
 #endif
 	int pagefault_disabled;
-#ifdef CONFIG_THREAD_INFO_IN_TASK
-	/* A live task holds one reference. */
-	atomic_t stack_refcount;
-#endif
-	struct {
-		struct work_struct work;
-		atomic_t running;
-		bool free_stack;
-	} async_free;
 /* CPU-specific state of this task */
 	struct thread_struct thread;
 /*
@@ -3345,22 +3323,12 @@ static inline unsigned long *end_of_stack(struct task_struct *p)
 
 #endif
 
-#ifdef CONFIG_THREAD_INFO_IN_TASK
-static inline void *try_get_task_stack(struct task_struct *tsk)
-{
-	return atomic_inc_not_zero(&tsk->stack_refcount) ?
-		task_stack_page(tsk) : NULL;
-}
-
-extern void put_task_stack(struct task_struct *tsk);
-#else
 static inline void *try_get_task_stack(struct task_struct *tsk)
 {
 	return task_stack_page(tsk);
 }
 
 static inline void put_task_stack(struct task_struct *tsk) {}
-#endif
 
 #define task_stack_end_corrupted(task) \
 		(*(end_of_stack(task)) != STACK_END_MAGIC)

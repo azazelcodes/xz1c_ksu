@@ -453,7 +453,6 @@ struct kallsym_iter {
 	char name[KSYM_NAME_LEN];
 	char module_name[MODULE_NAME_LEN];
 	int exported;
-	int show_value;
 };
 
 static int get_ksymbol_mod(struct kallsym_iter *iter)
@@ -526,20 +525,13 @@ static void s_stop(struct seq_file *m, void *p)
 {
 }
 
-#ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
-extern bool susfs_starts_with(const char *str, const char *prefix);
-#endif
-
 static int s_show(struct seq_file *m, void *p)
 {
-	unsigned long value;
 	struct kallsym_iter *iter = m->private;
 
 	/* Some debugging symbols have no name.  Ignore them. */
 	if (!iter->name[0])
 		return 0;
-
-	value = iter->show_value ? iter->value : 0;
 
 	if (iter->module_name[0]) {
 		char type;
@@ -550,40 +542,11 @@ static int s_show(struct seq_file *m, void *p)
 		 */
 		type = iter->exported ? toupper(iter->type) :
 					tolower(iter->type);
-		seq_printf(m, KALLSYM_FMT " %c %s\t[%s]\n", value,
+		seq_printf(m, "%pK %c %s\t[%s]\n", (void *)iter->value,
 			   type, iter->name, iter->module_name);
 	} else
-#ifndef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
-		seq_printf(m, "%px %c %s\n", value,
+		seq_printf(m, "%pK %c %s\n", (void *)iter->value,
 			   iter->type, iter->name);
-#else
-	{
-		if (susfs_starts_with(iter->name, "ksu_") ||
-			susfs_starts_with(iter->name, "__ksu_") ||
-			susfs_starts_with(iter->name, "susfs_") ||
-			susfs_starts_with(iter->name, "ksud") ||
-			susfs_starts_with(iter->name, "is_ksu_") ||
-			susfs_starts_with(iter->name, "is_manager_") ||
-			susfs_starts_with(iter->name, "escape_to_") ||
-			susfs_starts_with(iter->name, "setup_selinux") ||
-			susfs_starts_with(iter->name, "track_throne") ||
-			susfs_starts_with(iter->name, "on_post_fs_data") ||
-			susfs_starts_with(iter->name, "try_umount") ||
-			susfs_starts_with(iter->name, "kernelsu") ||
-			susfs_starts_with(iter->name, "__initcall__kmod_kernelsu") ||
-			susfs_starts_with(iter->name, "apply_kernelsu") ||
-			susfs_starts_with(iter->name, "handle_sepolicy") ||
-			susfs_starts_with(iter->name, "getenforce") ||
-			susfs_starts_with(iter->name, "setenforce") ||
-			susfs_starts_with(iter->name, "is_zygote"))
-		{
-			return 0;
-		}
-		seq_printf(m, "%px %c %s\n", value,
-			   iter->type, iter->name);
-	}
-#endif
-
 	return 0;
 }
 
@@ -593,40 +556,6 @@ static const struct seq_operations kallsyms_op = {
 	.stop = s_stop,
 	.show = s_show
 };
-
-static inline int kallsyms_for_perf(void)
-{
-#ifdef CONFIG_PERF_EVENTS
-	extern int sysctl_perf_event_paranoid;
-	if (sysctl_perf_event_paranoid <= 1)
-		return 1;
-#endif
-	return 0;
-}
-
-/*
- * We show kallsyms information even to normal users if we've enabled
- * kernel profiling and are explicitly not paranoid (so kptr_restrict
- * is clear, and sysctl_perf_event_paranoid isn't set).
- *
- * Otherwise, require CAP_SYSLOG (assuming kptr_restrict isn't set to
- * block even that).
- */
-int kallsyms_show_value(void)
-{
-	switch (kptr_restrict) {
-	case 0:
-		if (kallsyms_for_perf())
-			return 1;
-	/* fallthrough */
-	case 1:
-		if (has_capability_noaudit(current, CAP_SYSLOG))
-			return 1;
-	/* fallthrough */
-	default:
-		return 0;
-	}
-}
 
 static int kallsyms_open(struct inode *inode, struct file *file)
 {
@@ -641,7 +570,6 @@ static int kallsyms_open(struct inode *inode, struct file *file)
 		return -ENOMEM;
 	reset_iter(iter, 0);
 
-	iter->show_value = kallsyms_show_value();
 	return 0;
 }
 

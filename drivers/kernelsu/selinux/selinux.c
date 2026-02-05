@@ -74,9 +74,9 @@ is_ksu_transition(const struct task_security_struct *old_tsec,
 }
 #endif
 
-void setup_selinux(const char *domain)
+void setup_selinux(const char *domain, struct cred *cred)
 {
-	if (transive_to_domain(domain, (struct cred *)__task_cred(current))) {
+	if (transive_to_domain(domain, cred)) {
 		pr_err("transive domain failed.\n");
 		return;
 	}
@@ -232,11 +232,12 @@ static inline void susfs_set_sid(const char *secctx_name, u32 *out_sid)
 		secctx_name);
 }
 
-bool susfs_is_sid_equal(const struct cred *cred, u32 sid2) {
+bool susfs_is_sid_equal(const struct cred *cred, u32 sid2)
+{
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 18, 0)
-    const struct task_security_struct *tsec = selinux_cred(cred);
+	const struct task_security_struct *tsec = selinux_cred(cred);
 #else
-    const struct cred_security_struct *tsec = selinux_cred(cred);
+	const struct cred_security_struct *tsec = selinux_cred(cred);
 #endif
 	if (!tsec) {
 		return false;

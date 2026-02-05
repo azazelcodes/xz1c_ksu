@@ -1888,6 +1888,8 @@ int set_pages_rw(struct page *page, int numpages)
 	return set_memory_rw(addr, numpages);
 }
 
+#ifdef CONFIG_DEBUG_PAGEALLOC
+
 static int __set_pages_p(struct page *page, int numpages)
 {
 	unsigned long tempaddr = (unsigned long) page_address(page);
@@ -1906,18 +1908,6 @@ static int __set_pages_p(struct page *page, int numpages)
 	 */
 	return __change_page_attr_set_clr(&cpa, 0);
 }
-
-int set_direct_map_invalid_noflush(struct page *page)
-{
-	return __set_pages_np(page, 1);
-}
-
-int set_direct_map_default_noflush(struct page *page)
-{
-	return __set_pages_p(page, 1);
-}
-
-#ifdef CONFIG_DEBUG_PAGEALLOC
 
 static int __set_pages_np(struct page *page, int numpages)
 {

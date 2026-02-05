@@ -39,6 +39,7 @@
 #include <linux/ratelimit.h>
 #include <linux/list_lru.h>
 #include <linux/kasan.h>
+
 #include "internal.h"
 #include "mount.h"
 
@@ -2235,7 +2236,6 @@ seqretry:
 		if (unlikely(parent->d_flags & DCACHE_OP_COMPARE)) {
 			if (dentry->d_name.hash != hashlen_hash(hashlen))
 				continue;
-
 			*seqp = seq;
 			switch (slow_dentry_cmp(parent, dentry, seq, name)) {
 			case D_COMP_OK:

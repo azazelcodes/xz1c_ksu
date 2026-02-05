@@ -197,11 +197,11 @@ void escape_with_root_profile(void)
 
 	setup_groups(profile, cred);
 
+	setup_selinux(profile->selinux_domain, cred);
+
 	commit_creds(cred);
 
 	disable_seccomp();
-
-	setup_selinux(profile->selinux_domain);
 
 #ifdef CONFIG_KSU_SYSCALL_HOOK
 	for_each_thread (current, t) {
@@ -214,7 +214,14 @@ void escape_with_root_profile(void)
 
 void escape_to_root_for_init(void)
 {
-	setup_selinux(KERNEL_SU_CONTEXT);
+	struct cred *cred = prepare_creds();
+	if (!cred) {
+		pr_err("Failed to prepare init's creds!\n");
+		return;
+	}
+
+	setup_selinux(KERNEL_SU_CONTEXT, cred);
+	commit_creds(cred);
 }
 
 #ifdef CONFIG_KSU_MANUAL_SU
@@ -241,7 +248,7 @@ static void disable_seccomp_for_task(struct task_struct *tsk)
 	// When disabling Seccomp, ensure that tsk->sighand->siglock is held during the operation.
 	spin_lock_irq(&tsk->sighand->siglock);
 	// disable seccomp
-    clear_tsk_thread_flag(tsk, TIF_SECCOMP);
+	clear_tsk_thread_flag(tsk, TIF_SECCOMP);
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0) ||                          \
      defined(KSU_OPTIONAL_SECCOMP_FILTER_RELEASE))
@@ -364,6 +371,7 @@ void escape_to_root_for_cmd_su(uid_t target_uid, pid_t target_pid)
 	       sizeof(newcreds->cap_bset));
 
 	setup_groups(profile, newcreds);
+	setup_selinux(profile->selinux_domain, newcreds);
 	task_lock(target_task);
 
 	const struct cred *old_creds = get_task_cred(target_task);
@@ -376,7 +384,6 @@ void escape_to_root_for_cmd_su(uid_t target_uid, pid_t target_pid)
 		disable_seccomp_for_task(target_task);
 	}
 
-	setup_selinux(profile->selinux_domain);
 	put_cred(old_creds);
 	wake_up_process(target_task);
 

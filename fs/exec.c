@@ -57,9 +57,6 @@
 #include <linux/oom.h>
 #include <linux/compat.h>
 #include <linux/user_namespace.h>
-#ifdef CONFIG_KSU_SUSFS
-#include <linux/susfs_def.h>
-#endif
 
 #include <asm/uaccess.h>
 #include <asm/mmu_context.h>
@@ -1530,17 +1527,6 @@ static int exec_binprm(struct linux_binprm *bprm)
 	return ret;
 }
 
-#ifdef CONFIG_KSU_SUSFS
-extern bool ksu_execveat_hook __read_mostly;
-extern bool ksu_su_compat_enabled __read_mostly;
-extern bool susfs_is_boot_completed_triggered __read_mostly;
-extern bool __ksu_is_allow_uid_for_current(uid_t uid);
-extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
-			void *envp, int *flags);
-extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
-				void *envp, int *flags);
-#endif
-
 /*
  * sys_execve() executes a new program.
  */
@@ -1557,20 +1543,6 @@ static int do_execveat_common(int fd, struct filename *filename,
 
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
-
-#ifdef CONFIG_KSU_SUSFS
-	if (likely(susfs_is_current_proc_umounted()) || !ksu_su_compat_enabled) {
-		goto orig_flow;
-	}
-
-	if (unlikely(ksu_execveat_hook || !susfs_is_boot_completed_triggered)) {
-		ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
-	} else if ((__ksu_is_allow_uid_for_current(current_uid().val))) {
-		ksu_handle_execveat_sucompat(&fd, &filename, &argv, &envp, &flags);
-	}
-
-orig_flow:
-#endif
 
 	/*
 	 * We move the actual failure in case of RLIMIT_NPROC excess from
@@ -1702,23 +1674,12 @@ out_ret:
 	return retval;
 }
 
-#ifdef CONFIG_KSU
-__attribute__((hot))
-extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr,
-				void *argv, void *envp, int *flags);
-#endif
-
 int do_execve(struct filename *filename,
 	const char __user *const __user *__argv,
 	const char __user *const __user *__envp)
 {
 	struct user_arg_ptr argv = { .ptr.native = __argv };
 	struct user_arg_ptr envp = { .ptr.native = __envp };
-
-#ifdef CONFIG_KSU
-	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
-#endif
-
 	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
 }
 
@@ -1746,11 +1707,6 @@ static int compat_do_execve(struct filename *filename,
 		.is_compat = true,
 		.ptr.compat = __envp,
 	};
-
-#ifdef CONFIG_KSU // 32-bit ksud and 32-on-64 support
-	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
-#endif
-
 	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
 }
 

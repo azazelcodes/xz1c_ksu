@@ -37,9 +37,6 @@
 #include <linux/hash.h>
 #include <linux/init_task.h>
 #include <asm/uaccess.h>
-#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-#include <linux/susfs_def.h>
-#endif
 
 #include "internal.h"
 #include "mount.h"
@@ -1653,7 +1650,6 @@ static struct dentry *lookup_real(struct inode *dir, struct dentry *dentry,
 		dput(dentry);
 		dentry = old;
 	}
-
 	return dentry;
 }
 
@@ -1664,7 +1660,6 @@ static struct dentry *__lookup_hash(struct qstr *name,
 	struct dentry *dentry;
 
 	dentry = lookup_dcache(name, base, flags, &need_lookup);
-
 	if (!need_lookup)
 		return dentry;
 
@@ -2326,7 +2321,6 @@ static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 	if (likely(!retval))
 		audit_inode(name, path->dentry, flags & LOOKUP_PARENT);
 	restore_nameidata();
-
 	putname(name);
 	return retval;
 }
@@ -2929,7 +2923,6 @@ static inline int open_to_namei_flags(int flag)
 static int may_o_create(struct path *dir, struct dentry *dentry, umode_t mode)
 {
 	int error = security_path_mknod(dir, dentry, mode, 0);
-
 	if (error)
 		return error;
 
@@ -3532,10 +3525,6 @@ out2:
 	return file;
 }
 
-#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-extern struct filename* susfs_get_redirected_path(unsigned long ino);
-#endif
-
 struct file *do_filp_open(int dfd, struct filename *pathname,
 		const struct open_flags *op)
 {
@@ -3543,37 +3532,12 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 	int flags = op->lookup_flags;
 	struct file *filp;
 
-#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-	struct filename *fake_pathname;
-#endif
-
 	set_nameidata(&nd, dfd, pathname);
 	filp = path_openat(&nd, op, flags | LOOKUP_RCU);
 	if (unlikely(filp == ERR_PTR(-ECHILD)))
 		filp = path_openat(&nd, op, flags);
 	if (unlikely(filp == ERR_PTR(-ESTALE)))
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
-
-#ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-	if (!IS_ERR(filp) && unlikely(filp->f_inode->i_mapping->flags & BIT_OPEN_REDIRECT) && current_uid().val < 2000) {
-		fake_pathname = susfs_get_redirected_path(filp->f_inode->i_ino);
-		if (!IS_ERR(fake_pathname)) {
-			restore_nameidata();
-			filp_close(filp, NULL);
-			// no need to do `putname(pathname);` here as it will be done by calling process
-			set_nameidata(&nd, dfd, fake_pathname);
-			filp = path_openat(&nd, op, flags | LOOKUP_RCU);
-			if (unlikely(filp == ERR_PTR(-ECHILD)))
-				filp = path_openat(&nd, op, flags);
-			if (unlikely(filp == ERR_PTR(-ESTALE)))
-				filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
-			restore_nameidata();
-			putname(fake_pathname);
-			return filp;
-		}
-	}
-#endif
-
 	restore_nameidata();
 	return filp;
 }

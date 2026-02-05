@@ -229,41 +229,12 @@ static void account_kernel_stack(unsigned long *stack, int account)
 	mod_zone_page_state(zone, NR_KERNEL_STACK, account);
 }
 
-void release_task_stack(struct task_struct *tsk)
+void free_task(struct task_struct *tsk)
 {
 	cpufreq_task_times_exit(tsk);
 	account_kernel_stack(tsk->stack, -1);
 	arch_release_thread_stack(tsk->stack);
 	free_thread_stack(tsk->stack);
-	tsk->stack = NULL;
-#ifdef CONFIG_VMAP_STACK
-	tsk->stack_vm_area = NULL;
-#endif
-}
-
-#ifdef CONFIG_THREAD_INFO_IN_TASK
-void put_task_stack(struct task_struct *tsk)
-{
-	if (atomic_dec_and_test(&tsk->stack_refcount))
-		release_task_stack(tsk);
-}
-#endif
-
-void free_task(struct task_struct *tsk)
-{
-#ifndef CONFIG_THREAD_INFO_IN_TASK
-	/*
-	 * The task is finally done with both the stack and thread_info,
-	 * so free both.
-	 */
-	release_task_stack(tsk);
-#else
-	/*
-	 * If the task had a separate stack allocation, it should be gone
-	 * by now.
-	 */
-	WARN_ON_ONCE(atomic_read(&tsk->stack_refcount) != 0);
-#endif
 	rt_mutex_debug_task_free(tsk);
 	ftrace_graph_exit_task(tsk);
 	put_seccomp_filter(tsk);
@@ -316,10 +287,10 @@ static void set_max_threads(unsigned int max_threads_suggested)
 	 * The number of threads shall be limited such that the thread
 	 * structures may only consume a small part of the available memory.
 	 */
-	if (fls64(totalram_pages()) + fls64(PAGE_SIZE) > 64)
+	if (fls64(totalram_pages) + fls64(PAGE_SIZE) > 64)
 		threads = MAX_THREADS;
 	else
-		threads = div64_u64((u64) totalram_pages() * (u64) PAGE_SIZE,
+		threads = div64_u64((u64) totalram_pages * (u64) PAGE_SIZE,
 				    (u64) THREAD_SIZE * 8UL);
 
 	if (threads > max_threads_suggested)
@@ -392,9 +363,6 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 		goto free_stack;
 
 	tsk->stack = stack;
-#ifdef CONFIG_THREAD_INFO_IN_TASK
-	atomic_set(&tsk->stack_refcount, 1);
-#endif
 
 	err = kaiser_map_thread_stack(tsk->stack);
 	if (err)
@@ -1895,7 +1863,6 @@ bad_fork_cleanup_count:
 	atomic_dec(&p->cred->user->processes);
 	exit_creds(p);
 bad_fork_free:
-	put_task_stack(p);
 	free_task(p);
 fork_out:
 	return ERR_PTR(retval);
