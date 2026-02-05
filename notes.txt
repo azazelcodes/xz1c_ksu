@@ -1,0 +1,12 @@
+AVC.C
+avc_audit_post_callback needs fundamental changes
+[a2c513835bb6c6ca660ae4ecda8ff9f676e47e55]
+
+
+
+NAMEI.C
+assume dentry *lookup_one_qstr_excl was dentry *__lookup_hash
+[74d7970febf7e9005375aeda0df821d2edffc9f7]
+
+lookup_fast needs fundamental changes with returning and all that
+[20e343571cefe31b3dba3e61c9b057781fbce40a]
