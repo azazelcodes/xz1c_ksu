@@ -4,3 +4,13 @@ assume dentry *lookup_one_qstr_excl was dentry *__lookup_hash
 
 lookup_fast needs fundamental changes with returning and all that
 [20e343571cefe31b3dba3e61c9b057781fbce40a]
+
+
+NAMESPACE.C
+lots of old..
+AT LEAST
+5f2d9c44389e7cd9fe192570f6f20199bc861eb8
+444306129a920015a2cc876d13fcbf52382f39bd
+0a835c4f090af2c76fc2932c539c3b32fd21fbbb
+5ade60dda43c8906d4554374226c2eb11cc2ffba
+169b480e4c8b7409119458ebfb755283a5fc9826
