@@ -9349,7 +9349,7 @@ static int btrfs_getattr(struct vfsmount *mnt,
 	struct inode *inode = d_inode(dentry);
 	u32 blocksize = inode->i_sb->s_blocksize;
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 	stat->dev = BTRFS_I(inode)->root->anon_dev;
 	stat->blksize = PAGE_CACHE_SIZE;
 

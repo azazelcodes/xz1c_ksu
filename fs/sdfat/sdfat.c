@@ -907,7 +907,7 @@ static int sdfat_getattr(const struct path *path, struct kstat *stat,
 {
 	struct inode *inode = d_backing_inode(path->dentry);
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 	stat->blksize = SDFAT_SB(inode->i_sb)->fsi.cluster_size;
 
 	return 0;
@@ -917,7 +917,7 @@ static int sdfat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kst
 {
 	struct inode *inode = dentry->d_inode;
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 	stat->blksize = SDFAT_SB(inode->i_sb)->fsi.cluster_size;
 	return 0;
 }

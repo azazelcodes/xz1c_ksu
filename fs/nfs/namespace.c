@@ -186,7 +186,7 @@ nfs_namespace_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat 
 {
 	if (NFS_FH(d_inode(dentry))->size != 0)
 		return nfs_getattr(mnt, dentry, stat);
-	generic_fillattr(d_inode(dentry), stat);
+	generic_fillattr(&init_user_ns, d_inode(dentry), stat);
 	return 0;
 }
 

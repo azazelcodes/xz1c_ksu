@@ -18,14 +18,15 @@
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
 
-void generic_fillattr(struct inode *inode, struct kstat *stat)
+void generic_fillattr(struct user_namespace *mnt_userns, struct inode *inode,
+		      struct kstat *stat)
 {
 	stat->dev = inode->i_sb->s_dev;
 	stat->ino = inode->i_ino;
 	stat->mode = inode->i_mode;
 	stat->nlink = inode->i_nlink;
-	stat->uid = inode->i_uid;
-	stat->gid = inode->i_gid;
+	stat->uid = i_uid_into_mnt(mnt_userns, inode);
+	stat->gid = i_gid_into_mnt(mnt_userns, inode);
 	stat->rdev = inode->i_rdev;
 	stat->size = i_size_read(inode);
 	stat->atime = inode->i_atime;
@@ -56,7 +57,7 @@ int vfs_getattr_nosec(struct path *path, struct kstat *stat)
 	if (inode->i_op->getattr)
 		return inode->i_op->getattr(path->mnt, path->dentry, stat);
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(mnt_user_ns(path->mnt), inode, stat);
 	return 0;
 }
 
@@ -115,7 +116,7 @@ retry:
 	}
 out:
 	return error;
-}
+}	
 EXPORT_SYMBOL(vfs_fstatat);
 
 int vfs_stat(const char __user *name, struct kstat *stat)

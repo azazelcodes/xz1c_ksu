@@ -978,7 +978,7 @@ int fuse_update_attributes(struct inode *inode, struct kstat *stat,
 		r = false;
 		err = 0;
 		if (stat) {
-			generic_fillattr(inode, stat);
+			generic_fillattr(&init_user_ns, inode, stat);
 			stat->mode = fi->orig_i_mode;
 			stat->ino = fi->orig_ino;
 		}

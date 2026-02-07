@@ -2879,7 +2879,7 @@ extern const struct inode_operations page_symlink_inode_operations;
 extern void kfree_put_link(struct inode *, void *);
 extern void free_page_put_link(struct inode *, void *);
 extern int generic_readlink(struct dentry *, char __user *, int);
-extern void generic_fillattr(struct inode *, struct kstat *);
+void generic_fillattr(struct user_namespace *, struct inode *, struct kstat *);
 int vfs_getattr_nosec(struct path *path, struct kstat *stat);
 extern int vfs_getattr(struct path *, struct kstat *);
 void __inode_add_bytes(struct inode *inode, loff_t bytes);

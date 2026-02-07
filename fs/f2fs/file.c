@@ -728,7 +728,7 @@ int f2fs_getattr(struct vfsmount *mnt,
 				  STATX_ATTR_IMMUTABLE |
 				  STATX_ATTR_NODUMP);
 #endif
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 
 	/* we need to show initial sectors used for inline_data/dentries */
 	if ((S_ISREG(inode->i_mode) && f2fs_has_inline_data(inode)) ||

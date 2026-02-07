@@ -125,7 +125,7 @@ static int proc_getattr(struct vfsmount *mnt, struct dentry *dentry,
 	if (de && de->nlink)
 		set_nlink(inode, de->nlink);
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 	return 0;
 }
 

@@ -277,7 +277,7 @@ int kernfs_iop_getattr(struct vfsmount *mnt, struct dentry *dentry,
 	kernfs_refresh_inode(kn, inode);
 	mutex_unlock(&kernfs_mutex);
 
-	generic_fillattr(inode, stat);
+	generic_fillattr(&init_user_ns, inode, stat);
 	return 0;
 }
 

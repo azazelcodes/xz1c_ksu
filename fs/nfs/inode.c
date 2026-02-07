@@ -682,7 +682,7 @@ int nfs_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 		err = __nfs_revalidate_inode(server, inode);
 	}
 	if (!err) {
-		generic_fillattr(inode, stat);
+		generic_fillattr(&init_user_ns, inode, stat);
 		stat->ino = nfs_compat_user_ino64(NFS_FILEID(inode));
 		if (S_ISDIR(inode->i_mode))
 			stat->blksize = NFS_SERVER(inode)->dtsize;
