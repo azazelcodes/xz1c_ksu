@@ -1,6 +1,7 @@
-NAMEI.C
+NAMEI.C {maybe use https://github.com/crdroidandroid/android_kernel_xiaomi_sm6150/commit/ea7df9d3b71f77926fabbff44684647615969953}
 assume dentry *lookup_one_qstr_excl was dentry *__lookup_hash
 [74d7970febf7e9005375aeda0df821d2edffc9f7]
+(this commit might depend on f44158485826c076335d6860d35872271a83791d and the following 265fd1991c1db85fbabaad4946ca0e63e2ae688d)
 
 lookup_fast needs fundamental changes with returning and all that
 [20e343571cefe31b3dba3e61c9b057781fbce40a]
@@ -14,8 +15,16 @@ AT LEAST
 0a835c4f090af2c76fc2932c539c3b32fd21fbbb
 5ade60dda43c8906d4554374226c2eb11cc2ffba
 169b480e4c8b7409119458ebfb755283a5fc9826
+basically I need the newer ida_free
 
-OPEN.C
-not sure, might need
-c8ffd8bcdd28296a198f237cc595148a8d4adfbe
-eb9d7d390e51108b4c6a9a7993ed9be92548c8f7
+
+STAT.C
+okeay heres the deal:
+first.. a528d35e8bfcc521d7cb70aaf03e1bd296c8493f
+then! da9aa5d96bfe49e903ce2bc01cfb8a776c2619e9 and 09f1bde4017e9c34749da2918b3926799c77bce8 which ligerally undo the previous commit <3
+now it fix
+
+
+
+these might be easier to manually implement with the https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/susfs_inline_hook_patches.sh and the following https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/Patch/susfs_patch_to_4.9.patch
+as can be seen in .github/workflows/patch-no-kprobe
