@@ -7,6 +7,7 @@ lookup_fast needs fundamental changes with returning and all that
 [20e343571cefe31b3dba3e61c9b057781fbce40a]
 
 
+(maybe impl??)
 NAMESPACE.C
 lots of old..
 AT LEAST
@@ -18,6 +19,7 @@ AT LEAST
 basically I need the newer ida_free
 
 
+(maybe impl??)
 STAT.C
 okeay heres the deal:
 first.. a528d35e8bfcc521d7cb70aaf03e1bd296c8493f
