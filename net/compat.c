@@ -41,7 +41,7 @@ int get_compat_msghdr(struct msghdr *kmsg,
 	compat_size_t nr_segs;
 	ssize_t err;
 
-	if (!access_ok(VERIFY_READ, umsg, sizeof(*umsg)) ||
+	if (!access_ok(umsg, sizeof(*umsg)) ||
 	    __get_user(uaddr, &umsg->msg_name) ||
 	    __get_user(kmsg->msg_namelen, &umsg->msg_namelen) ||
 	    __get_user(uiov, &umsg->msg_iov) ||
@@ -319,8 +319,8 @@ static int do_set_attach_filter(struct socket *sock, int level, int optname,
 	compat_uptr_t ptr;
 	u16 len;
 
-	if (!access_ok(VERIFY_READ, fprog32, sizeof(*fprog32)) ||
-	    !access_ok(VERIFY_WRITE, kfprog, sizeof(struct sock_fprog)) ||
+	if (!access_ok(fprog32, sizeof(*fprog32)) ||
+	    !access_ok(kfprog, sizeof(struct sock_fprog)) ||
 	    __get_user(len, &fprog32->len) ||
 	    __get_user(ptr, &fprog32->filter) ||
 	    __put_user(len, &kfprog->len) ||

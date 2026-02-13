@@ -1142,7 +1142,7 @@ isdnloop_command(isdn_ctrl *c, isdnloop_card *card)
 		case ISDNLOOP_IOCTL_DEBUGVAR:
 			return (ulong) card;
 		case ISDNLOOP_IOCTL_STARTUP:
-			if (!access_ok(VERIFY_READ, (void *) a, sizeof(isdnloop_sdef)))
+			if (!access_ok((void *) a, sizeof(isdnloop_sdef)))
 				return -EFAULT;
 			return isdnloop_start(card, (isdnloop_sdef *) a);
 			break;

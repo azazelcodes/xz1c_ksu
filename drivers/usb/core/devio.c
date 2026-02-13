@@ -1815,7 +1815,7 @@ static int get_urb32(struct usbdevfs_urb *kurb,
 		     struct usbdevfs_urb32 __user *uurb)
 {
 	__u32  uptr;
-	if (!access_ok(VERIFY_READ, uurb, sizeof(*uurb)) ||
+	if (!access_ok(uurb, sizeof(*uurb)) ||
 	    __get_user(kurb->type, &uurb->type) ||
 	    __get_user(kurb->endpoint, &uurb->endpoint) ||
 	    __get_user(kurb->status, &uurb->status) ||
@@ -2044,7 +2044,7 @@ static int proc_ioctl_compat(struct usb_dev_state *ps, compat_uptr_t arg)
 	u32 udata;
 
 	uioc = compat_ptr((long)arg);
-	if (!access_ok(VERIFY_READ, uioc, sizeof(*uioc)) ||
+	if (!access_ok(uioc, sizeof(*uioc)) ||
 	    __get_user(ctrl.ifno, &uioc->ifno) ||
 	    __get_user(ctrl.ioctl_code, &uioc->ioctl_code) ||
 	    __get_user(udata, &uioc->data))

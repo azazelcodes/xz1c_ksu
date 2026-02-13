@@ -986,9 +986,9 @@ static long hfi1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 	mode_flag = dd->hfi1_snoop.mode_flag;
 
 	if (((_IOC_DIR(cmd) & _IOC_READ)
-	    && !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd)))
+	    && !access_ok((void __user *)arg, _IOC_SIZE(cmd)))
 	    || ((_IOC_DIR(cmd) & _IOC_WRITE)
-	    && !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd)))) {
+	    && !access_ok((void __user *)arg, _IOC_SIZE(cmd)))) {
 		ret = -EFAULT;
 	} else if (!capable(CAP_SYS_ADMIN)) {
 		ret = -EPERM;

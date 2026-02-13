@@ -258,7 +258,7 @@ static int spidev_message(struct spidev_data *spidev,
 				goto done;
 			}
 			k_tmp->rx_buf = rx_buf;
-			if (!access_ok(VERIFY_WRITE, (u8 __user *)
+			if (!access_ok((u8 __user *)
 						(uintptr_t) u_tmp->rx_buf,
 						u_tmp->len))
 				goto done;
@@ -529,7 +529,7 @@ spidev_compat_ioc_message(struct file *filp, unsigned int cmd,
 	struct spi_ioc_transfer		*ioc;
 
 	u_ioc = (struct spi_ioc_transfer __user *) compat_ptr(arg);
-	if (!access_ok(VERIFY_READ, u_ioc, _IOC_SIZE(cmd)))
+	if (!access_ok(u_ioc, _IOC_SIZE(cmd)))
 		return -EFAULT;
 
 	/* guard against device removal before, or while,

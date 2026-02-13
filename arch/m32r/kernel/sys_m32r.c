@@ -35,7 +35,7 @@ asmlinkage int sys_tas(int __user *addr)
 {
 	int oldval;
 
-	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+	if (!access_ok(addr, sizeof (int)))
 		return -EFAULT;
 
 	/* atomic operation:

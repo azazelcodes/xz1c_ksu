@@ -187,7 +187,7 @@ static ssize_t msm_drm_write(struct file *filp, const char __user *buffer,
 	if (count != sizeof(struct event_req))
 		return -EINVAL;
 
-	if (!access_ok(VERIFY_READ, buffer, count))
+	if (!access_ok(buffer, count))
 		return -EFAULT;
 
 	ret = copy_from_user(&e_req, buffer, sizeof(e_req));

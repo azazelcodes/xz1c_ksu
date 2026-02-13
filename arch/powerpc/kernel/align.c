@@ -208,7 +208,7 @@ static int emulate_dcbz(struct pt_regs *regs, unsigned char __user *addr)
 	size = L1_CACHE_BYTES;
 #endif
 	p = (long __user *) (regs->dar & -size);
-	if (user_mode(regs) && !access_ok(VERIFY_WRITE, p, size))
+	if (user_mode(regs) && !access_ok(p, size))
 		return -EFAULT;
 	for (i = 0; i < size / sizeof(long); ++i)
 		if (__put_user_inatomic(0, p+i))

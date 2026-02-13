@@ -1289,7 +1289,7 @@ int esas2r_ioctl_handler(void *hostdata, int cmd, void __user *arg)
 	    || (cmd > EXPRESS_IOCTL_MAX))
 		return -ENOTSUPP;
 
-	if (!access_ok(VERIFY_WRITE, arg, sizeof(struct atto_express_ioctl))) {
+	if (!access_ok(arg, sizeof(struct atto_express_ioctl))) {
 		esas2r_log(ESAS2R_LOG_WARN,
 			   "ioctl_handler access_ok failed for cmd %d, "
 			   "address %p", cmd,

@@ -657,7 +657,7 @@ EXPORT_SYMBOL(__copy_from_user_ll_nocache_nozero);
  */
 unsigned long _copy_to_user(void __user *to, const void *from, unsigned n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		n = __copy_to_user(to, from, n);
 	return n;
 }
@@ -682,7 +682,7 @@ EXPORT_SYMBOL(_copy_to_user);
  */
 unsigned long _copy_from_user(void *to, const void __user *from, unsigned n)
 {
-	if (access_ok(VERIFY_READ, from, n))
+	if (access_ok(from, n))
 		n = __copy_from_user(to, from, n);
 	else
 		memset(to, 0, n);

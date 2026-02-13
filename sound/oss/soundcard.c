@@ -341,10 +341,10 @@ static long sound_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		if (len < 1 || len > 65536 || !p)
 			return -EFAULT;
 		if (_SIOC_DIR(cmd) & _SIOC_WRITE)
-			if (!access_ok(VERIFY_READ, p, len))
+			if (!access_ok(p, len))
 				return -EFAULT;
 		if (_SIOC_DIR(cmd) & _SIOC_READ)
-			if (!access_ok(VERIFY_WRITE, p, len))
+			if (!access_ok(p, len))
 				return -EFAULT;
 	}
 	if (cmd == OSS_GETVERSION)

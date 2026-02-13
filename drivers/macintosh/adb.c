@@ -727,7 +727,7 @@ static ssize_t adb_read(struct file *file, char __user *buf,
 		return -EINVAL;
 	if (count > sizeof(req->reply))
 		count = sizeof(req->reply);
-	if (!access_ok(VERIFY_WRITE, buf, count))
+	if (!access_ok(buf, count))
 		return -EFAULT;
 
 	req = NULL;
@@ -785,7 +785,7 @@ static ssize_t adb_write(struct file *file, const char __user *buf,
 		return -EINVAL;
 	if (adb_controller == NULL)
 		return -ENXIO;
-	if (!access_ok(VERIFY_READ, buf, count))
+	if (!access_ok(buf, count))
 		return -EFAULT;
 
 	req = kmalloc(sizeof(struct adb_request),

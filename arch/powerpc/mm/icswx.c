@@ -176,7 +176,7 @@ static u32 acop_get_inst(struct pt_regs *regs)
 	u32 __user *p;
 
 	p = (u32 __user *)regs->nip;
-	if (!access_ok(VERIFY_READ, p, sizeof(*p)))
+	if (!access_ok(p, sizeof(*p)))
 		return 0;
 
 	if (__get_user(inst, p))

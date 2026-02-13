@@ -12,8 +12,6 @@
 #include <linux/bug.h>
 #include <linux/string.h>
 
-#define VERIFY_READ 0
-#define VERIFY_WRITE 1
 
 #define KERNEL_DS	((mm_segment_t){0})
 #define USER_DS 	((mm_segment_t){1})

@@ -35,8 +35,6 @@ static inline void set_fs(mm_segment_t fs)
 #define segment_eq(a, b) ((a).seg == (b).seg)
 #endif
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 #define access_ok(addr, size) __access_ok((unsigned long)(addr),(size))
 
@@ -263,7 +261,7 @@ static inline long copy_from_user(void *to,
 {
 	unsigned long res = n;
 	might_fault();
-	if (likely(access_ok(VERIFY_READ, from, n)))
+	if (likely(access_ok(from, n)))
 		res = __copy_from_user(to, from, n);
 	if (unlikely(res))
 		memset(to + (n - res), 0, res);
@@ -274,7 +272,7 @@ static inline long copy_to_user(void __user *to,
 		const void *from, unsigned long n)
 {
 	might_fault();
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		return __copy_to_user(to, from, n);
 	else
 		return n;

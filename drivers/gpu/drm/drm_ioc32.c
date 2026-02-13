@@ -384,7 +384,7 @@ static int compat_drm_addbufs(struct file *file, unsigned int cmd,
 	unsigned long agp_start;
 
 	buf = compat_alloc_user_space(sizeof(*buf));
-	if (!buf || !access_ok(VERIFY_WRITE, argp, sizeof(*argp)))
+	if (!buf || !access_ok(argp, sizeof(*argp)))
 		return -EFAULT;
 
 	if (__copy_in_user(buf, argp, offsetof(drm_buf_desc32_t, agp_start))
@@ -451,7 +451,7 @@ static int compat_drm_infobufs(struct file *file, unsigned int cmd,
 	if (count < 0)
 		count = 0;
 	if (count > 0
-	    && !access_ok(VERIFY_WRITE, to, count * sizeof(drm_buf_desc32_t)))
+	    && !access_ok(to, count * sizeof(drm_buf_desc32_t)))
 		return -EFAULT;
 
 	nbytes = sizeof(*request) + count * sizeof(struct drm_buf_desc);
@@ -609,7 +609,7 @@ static int compat_drm_getsareactx(struct file *file, unsigned int cmd,
 	unsigned int ctx_id;
 	void *handle;
 
-	if (!access_ok(VERIFY_WRITE, argp, sizeof(*argp))
+	if (!access_ok(argp, sizeof(*argp))
 	    || __get_user(ctx_id, &argp->ctx_id))
 		return -EFAULT;
 
@@ -898,7 +898,7 @@ static int compat_drm_sg_alloc(struct file *file, unsigned int cmd,
 	unsigned long x;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!request || !access_ok(VERIFY_WRITE, argp, sizeof(*argp))
+	if (!request || !access_ok(argp, sizeof(*argp))
 	    || __get_user(x, &argp->size)
 	    || __put_user(x, &request->size))
 		return -EFAULT;
@@ -923,7 +923,7 @@ static int compat_drm_sg_free(struct file *file, unsigned int cmd,
 	unsigned long x;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!request || !access_ok(VERIFY_WRITE, argp, sizeof(*argp))
+	if (!request || !access_ok(argp, sizeof(*argp))
 	    || __get_user(x, &argp->handle)
 	    || __put_user(x << PAGE_SHIFT, &request->handle))
 		return -EFAULT;
@@ -1042,7 +1042,7 @@ static int compat_drm_mode_addfb2(struct file *file, unsigned int cmd,
 
 	req64 = compat_alloc_user_space(sizeof(*req64));
 
-	if (!access_ok(VERIFY_WRITE, req64, sizeof(*req64))
+	if (!access_ok(req64, sizeof(*req64))
 	    || __put_user(req32.width, &req64->width)
 	    || __put_user(req32.height, &req64->height)
 	    || __put_user(req32.pixel_format, &req64->pixel_format)

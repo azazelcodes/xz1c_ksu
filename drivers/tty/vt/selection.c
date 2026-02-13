@@ -176,7 +176,7 @@ static int __set_selection(const struct tiocl_selection __user *sel, struct tty_
 
 	{ unsigned short xs, ys, xe, ye;
 
-	  if (!access_ok(VERIFY_READ, sel, sizeof(*sel)))
+	  if (!access_ok(sel, sizeof(*sel)))
 		return -EFAULT;
 	  __get_user(xs, &sel->xs);
 	  __get_user(ys, &sel->ys);

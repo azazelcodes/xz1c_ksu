@@ -34,7 +34,7 @@ static int compat_get_timex(struct timex *txc, struct compat_timex __user *utp)
 {
 	memset(txc, 0, sizeof(struct timex));
 
-	if (!access_ok(VERIFY_READ, utp, sizeof(struct compat_timex)) ||
+	if (!access_ok(utp, sizeof(struct compat_timex)) ||
 			__get_user(txc->modes, &utp->modes) ||
 			__get_user(txc->offset, &utp->offset) ||
 			__get_user(txc->freq, &utp->freq) ||
@@ -62,7 +62,7 @@ static int compat_get_timex(struct timex *txc, struct compat_timex __user *utp)
 
 static int compat_put_timex(struct compat_timex __user *utp, struct timex *txc)
 {
-	if (!access_ok(VERIFY_WRITE, utp, sizeof(struct compat_timex)) ||
+	if (!access_ok(utp, sizeof(struct compat_timex)) ||
 			__put_user(txc->modes, &utp->modes) ||
 			__put_user(txc->offset, &utp->offset) ||
 			__put_user(txc->freq, &utp->freq) ||
@@ -290,7 +290,7 @@ COMPAT_SYSCALL_DEFINE2(nanosleep, struct compat_timespec __user *, rqtp,
 static inline long get_compat_itimerval(struct itimerval *o,
 		struct compat_itimerval __user *i)
 {
-	return (!access_ok(VERIFY_READ, i, sizeof(*i)) ||
+	return (!access_ok(i, sizeof(*i)) ||
 		(__get_user(o->it_interval.tv_sec, &i->it_interval.tv_sec) |
 		 __get_user(o->it_interval.tv_usec, &i->it_interval.tv_usec) |
 		 __get_user(o->it_value.tv_sec, &i->it_value.tv_sec) |
@@ -300,7 +300,7 @@ static inline long get_compat_itimerval(struct itimerval *o,
 static inline long put_compat_itimerval(struct compat_itimerval __user *o,
 		struct itimerval *i)
 {
-	return (!access_ok(VERIFY_WRITE, o, sizeof(*o)) ||
+	return (!access_ok(o, sizeof(*o)) ||
 		(__put_user(i->it_interval.tv_sec, &o->it_interval.tv_sec) |
 		 __put_user(i->it_interval.tv_usec, &o->it_interval.tv_usec) |
 		 __put_user(i->it_value.tv_sec, &o->it_value.tv_sec) |
@@ -446,7 +446,7 @@ COMPAT_SYSCALL_DEFINE2(setrlimit, unsigned int, resource,
 {
 	struct rlimit r;
 
-	if (!access_ok(VERIFY_READ, rlim, sizeof(*rlim)) ||
+	if (!access_ok(rlim, sizeof(*rlim)) ||
 	    __get_user(r.rlim_cur, &rlim->rlim_cur) ||
 	    __get_user(r.rlim_max, &rlim->rlim_max))
 		return -EFAULT;
@@ -477,7 +477,7 @@ COMPAT_SYSCALL_DEFINE2(old_getrlimit, unsigned int, resource,
 		if (r.rlim_max > COMPAT_RLIM_OLD_INFINITY)
 			r.rlim_max = COMPAT_RLIM_INFINITY;
 
-		if (!access_ok(VERIFY_WRITE, rlim, sizeof(*rlim)) ||
+		if (!access_ok(rlim, sizeof(*rlim)) ||
 		    __put_user(r.rlim_cur, &rlim->rlim_cur) ||
 		    __put_user(r.rlim_max, &rlim->rlim_max))
 			return -EFAULT;
@@ -500,7 +500,7 @@ COMPAT_SYSCALL_DEFINE2(getrlimit, unsigned int, resource,
 		if (r.rlim_max > COMPAT_RLIM_INFINITY)
 			r.rlim_max = COMPAT_RLIM_INFINITY;
 
-		if (!access_ok(VERIFY_WRITE, rlim, sizeof(*rlim)) ||
+		if (!access_ok(rlim, sizeof(*rlim)) ||
 		    __put_user(r.rlim_cur, &rlim->rlim_cur) ||
 		    __put_user(r.rlim_max, &rlim->rlim_max))
 			return -EFAULT;
@@ -510,7 +510,7 @@ COMPAT_SYSCALL_DEFINE2(getrlimit, unsigned int, resource,
 
 int put_compat_rusage(const struct rusage *r, struct compat_rusage __user *ru)
 {
-	if (!access_ok(VERIFY_WRITE, ru, sizeof(*ru)) ||
+	if (!access_ok(ru, sizeof(*ru)) ||
 	    __put_user(r->ru_utime.tv_sec, &ru->ru_utime.tv_sec) ||
 	    __put_user(r->ru_utime.tv_usec, &ru->ru_utime.tv_usec) ||
 	    __put_user(r->ru_stime.tv_sec, &ru->ru_stime.tv_sec) ||

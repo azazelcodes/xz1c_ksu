@@ -81,7 +81,7 @@ SYSCALL_DEFINE0(rt_sigreturn)
 		(struct rt_sigframe __user *)(regs->sp);
 	sigset_t set;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;
@@ -154,7 +154,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 
 	frame = get_sigframe(&ksig->ka, regs, sizeof(*frame));
 
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto err;
 
 	/* Always write at least the signal number for the stack backtracer. */
@@ -330,7 +330,7 @@ static void dump_mem(void __user *address)
 	int i, j, k;
 	int found_readable_mem = 0;
 
-	if (!access_ok(VERIFY_READ, address, 1)) {
+	if (!access_ok(address, 1)) {
 		pr_err("Not dumping at address 0x%lx (kernel address)\n",
 		       (unsigned long)address);
 		return;

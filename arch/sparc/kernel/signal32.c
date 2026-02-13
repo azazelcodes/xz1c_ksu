@@ -73,7 +73,7 @@ int copy_siginfo_to_user32(compat_siginfo_t __user *to, const siginfo_t *from)
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, to, sizeof(compat_siginfo_t)))
+	if (!access_ok(to, sizeof(compat_siginfo_t)))
 		return -EFAULT;
 
 	/* If you change siginfo_t structure, please be sure
@@ -127,7 +127,7 @@ int copy_siginfo_to_user32(compat_siginfo_t __user *to, const siginfo_t *from)
  */
 int copy_siginfo_from_user32(siginfo_t *to, compat_siginfo_t __user *from)
 {
-	if (!access_ok(VERIFY_WRITE, from, sizeof(compat_siginfo_t)))
+	if (!access_ok(from, sizeof(compat_siginfo_t)))
 		return -EFAULT;
 
 	if (copy_from_user(to, from, 3*sizeof(int)) ||

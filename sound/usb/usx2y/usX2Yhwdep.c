@@ -202,7 +202,7 @@ static int snd_usX2Y_hwdep_dsp_load(struct snd_hwdep *hw,
 	int	lret, err = -EINVAL;
 	snd_printdd( "dsp_load %s\n", dsp->name);
 
-	if (access_ok(VERIFY_READ, dsp->image, dsp->length)) {
+	if (access_ok(dsp->image, dsp->length)) {
 		struct usb_device* dev = priv->dev;
 		char *buf;
 

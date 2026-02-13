@@ -6,8 +6,6 @@
  */
 #include <linux/sched.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -56,12 +54,12 @@ static inline int __access_ok(unsigned long addr, unsigned long size)
 	return false;
 }
 
-#define access_ok(type, addr, size) __access_ok((unsigned long)(addr),	\
+#define access_ok(addr, size) __access_ok((unsigned long)(addr),	\
 						(unsigned long)(size))
 
 static inline int verify_area(int type, const void *addr, unsigned long size)
 {
-	return access_ok(type, addr, size) ? 0 : -EFAULT;
+	return access_ok(addr, size) ? 0 : -EFAULT;
 }
 
 /*
@@ -105,7 +103,7 @@ extern void __put_user_bad(void);
 ({                                                              \
 	long __pu_err = -EFAULT;                                \
 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);           \
-	if (access_ok(VERIFY_WRITE, __pu_addr, size))		\
+	if (access_ok(__pu_addr, size))		\
 		__put_user_size((x), __pu_addr, (size), __pu_err);	\
 	__pu_err;                                               \
 })
@@ -156,7 +154,7 @@ extern long __get_user_bad(void);
 ({                                                                      \
 	long __gu_err = -EFAULT, __gu_val = 0;                          \
 	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
-	if (access_ok(VERIFY_READ, __gu_addr, size))			\
+	if (access_ok(__gu_addr, size))			\
 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
 	(x) = (__force __typeof__(*(ptr)))__gu_val;                     \
 	__gu_err;                                                       \
@@ -197,7 +195,7 @@ extern long __must_check __strncpy_from_user(char *dst, const char __user *src,
 static inline long
 strncpy_from_user(char *dst, const char __user *src, long count)
 {
-	if (!access_ok(VERIFY_READ, src, 1))
+	if (!access_ok(src, 1))
 		return -EFAULT;
 	return __strncpy_from_user(dst, src, count);
 }
@@ -217,7 +215,7 @@ static inline unsigned long
 copy_from_user(void *to, const void __user *from, unsigned long n)
 {
 	unsigned long res = n;
-	if (likely(access_ok(VERIFY_READ, from, n)))
+	if (likely(access_ok(from, n)))
 		res = raw_copy_from_user(to, from, n);
 	if (unlikely(res))
 		memset(to + (n - res), 0, res);
@@ -234,7 +232,7 @@ extern unsigned long __must_check __copy_user(void __user *to,
 static inline unsigned long copy_to_user(void __user *to, const void *from,
 					 unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		return __copy_user(to, from, n);
 	return n;
 }
@@ -251,7 +249,7 @@ extern unsigned long __must_check __do_clear_user(void __user *to,
 
 static inline unsigned long clear_user(void __user *to, unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		return __do_clear_user(to, n);
 	return n;
 }

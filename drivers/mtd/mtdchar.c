@@ -378,7 +378,7 @@ static int mtdchar_writeoob(struct file *file, struct mtd_info *mtd,
 	if (!mtd->_write_oob)
 		ret = -EOPNOTSUPP;
 	else
-		ret = access_ok(VERIFY_READ, ptr, length) ? 0 : -EFAULT;
+		ret = access_ok(ptr, length) ? 0 : -EFAULT;
 
 	if (ret)
 		return ret;
@@ -420,7 +420,7 @@ static int mtdchar_readoob(struct file *file, struct mtd_info *mtd,
 	if (length > 4096)
 		return -EINVAL;
 
-	if (!access_ok(VERIFY_WRITE, ptr, length))
+	if (!access_ok(ptr, length))
 		return -EFAULT;
 
 	ops.ooblen = length;
@@ -546,8 +546,8 @@ static int mtdchar_write_ioctl(struct mtd_info *mtd,
 
 	usr_data = (const void __user *)(uintptr_t)req.usr_data;
 	usr_oob = (const void __user *)(uintptr_t)req.usr_oob;
-	if (!access_ok(VERIFY_READ, usr_data, req.len) ||
-	    !access_ok(VERIFY_READ, usr_oob, req.ooblen))
+	if (!access_ok(usr_data, req.len) ||
+	    !access_ok(usr_oob, req.ooblen))
 		return -EFAULT;
 
 	if (!mtd->_write_oob)
@@ -597,11 +597,11 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 
 	size = (cmd & IOCSIZE_MASK) >> IOCSIZE_SHIFT;
 	if (cmd & IOC_IN) {
-		if (!access_ok(VERIFY_READ, argp, size))
+		if (!access_ok(argp, size))
 			return -EFAULT;
 	}
 	if (cmd & IOC_OUT) {
-		if (!access_ok(VERIFY_WRITE, argp, size))
+		if (!access_ok(argp, size))
 			return -EFAULT;
 	}
 

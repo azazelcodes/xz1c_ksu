@@ -21,8 +21,6 @@
 #include <asm/processor.h>
 #include <asm/page.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -53,7 +51,7 @@
 #define __user_ok(addr, size) \
 	(((size) <= TASK_SIZE) && ((addr) <= TASK_SIZE-(size)))
 #define __access_ok(addr, size) (__kernel_ok || __user_ok((addr), (size)))
-#define access_ok(type, addr, size) __access_ok((unsigned long)(addr), (size))
+#define access_ok(addr, size) __access_ok((unsigned long)(addr), (size))
 
 #include <arch/uaccess.h>
 
@@ -157,7 +155,7 @@ do {									\
 ({									\
 	long __pu_err = -EFAULT;					\
 	__typeof__(*(ptr)) *__pu_addr = (ptr);				\
-	if (access_ok(VERIFY_WRITE, __pu_addr, size))			\
+	if (access_ok(__pu_addr, size))			\
 		__put_user_size((x), __pu_addr, (size), __pu_err);	\
 	__pu_err;							\
 })
@@ -179,7 +177,7 @@ struct __large_struct { unsigned long buf[100]; };
 ({									\
 	long __gu_err = -EFAULT, __gu_val = 0;				\
 	const __typeof__(*(ptr)) *__gu_addr = (ptr);			\
-	if (access_ok(VERIFY_READ, __gu_addr, size))			\
+	if (access_ok(__gu_addr, size))			\
 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
 	__gu_err;							\
@@ -205,7 +203,7 @@ strncpy_from_user(char *dst, const char __user *src, long count)
 {
 	long res = -EFAULT;
 
-	if (access_ok(VERIFY_READ, src, 1))
+	if (access_ok(src, 1))
 		res = __do_strncpy_from_user(dst, src, count);
 	return res;
 }
@@ -350,7 +348,7 @@ __constant_clear_user(void __user *to, unsigned long n)
 
 static inline size_t clear_user(void __user *to, size_t n)
 {
-	if (unlikely(!access_ok(VERIFY_WRITE, to, n)))
+	if (unlikely(!access_ok(to, n)))
 		return n;
 	if (__builtin_constant_p(n))
 		return __constant_clear_user(to, n);
@@ -360,7 +358,7 @@ static inline size_t clear_user(void __user *to, size_t n)
 
 static inline size_t copy_from_user(void *to, const void __user *from, size_t n)
 {
-	if (unlikely(!access_ok(VERIFY_READ, from, n))) {
+	if (unlikely(!access_ok(from, n))) {
 		memset(to, 0, n);
 		return n;
 	}
@@ -372,7 +370,7 @@ static inline size_t copy_from_user(void *to, const void __user *from, size_t n)
 
 static inline size_t copy_to_user(void __user *to, const void *from, size_t n)
 {
-	if (unlikely(!access_ok(VERIFY_WRITE, to, n)))
+	if (unlikely(!access_ok(to, n)))
 		return n;
 	if (__builtin_constant_p(n))
 		return __constant_copy_to_user(to, from, n);

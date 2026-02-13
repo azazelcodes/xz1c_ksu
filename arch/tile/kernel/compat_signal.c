@@ -53,7 +53,7 @@ int copy_siginfo_to_user32(struct compat_siginfo __user *to, const siginfo_t *fr
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, to, sizeof(struct compat_siginfo)))
+	if (!access_ok(to, sizeof(struct compat_siginfo)))
 		return -EFAULT;
 
 	/* If you change siginfo_t structure, please make sure that
@@ -110,7 +110,7 @@ int copy_siginfo_from_user32(siginfo_t *to, struct compat_siginfo __user *from)
 {
 	int err;
 
-	if (!access_ok(VERIFY_READ, from, sizeof(struct compat_siginfo)))
+	if (!access_ok(from, sizeof(struct compat_siginfo)))
 		return -EFAULT;
 
 	err = __get_user(to->si_signo, &from->si_signo);
@@ -132,7 +132,7 @@ long compat_sys_rt_sigreturn(void)
 		(struct compat_rt_sigframe __user *) compat_ptr(regs->sp);
 	sigset_t set;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;
@@ -196,7 +196,7 @@ int compat_setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 
 	frame = compat_get_sigframe(&ksig->ka, regs, sizeof(*frame));
 
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto err;
 
 	/* Always write at least the signal number for the stack backtracer. */

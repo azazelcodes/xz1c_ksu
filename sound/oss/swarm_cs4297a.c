@@ -1679,7 +1679,7 @@ static ssize_t cs4297a_read(struct file *file, char *buffer, size_t count,
 		return -ENXIO;
 	if (!s->dma_adc.ready && (ret = prog_dmabuf_adc(s)))
 		return ret;
-	if (!access_ok(VERIFY_WRITE, buffer, count))
+	if (!access_ok(buffer, count))
 		return -EFAULT;
 	ret = 0;
 //
@@ -1803,7 +1803,7 @@ static ssize_t cs4297a_write(struct file *file, const char *buffer,
 		return -ENXIO;
 	if (!s->dma_dac.ready && (ret = prog_dmabuf_dac(s)))
 		return ret;
-	if (!access_ok(VERIFY_READ, buffer, count))
+	if (!access_ok(buffer, count))
 		return -EFAULT;
 	ret = 0;
 	while (count > 0) {

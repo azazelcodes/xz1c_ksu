@@ -1634,7 +1634,7 @@ long arch_ptrace(struct task_struct *child, long request,
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 #endif /* CONFIG_PPC_ADV_DEBUG_REGS */
 
-		if (!access_ok(VERIFY_WRITE, datavp,
+		if (!access_ok(datavp,
 			       sizeof(struct ppc_debug_info)))
 			return -EFAULT;
 		ret = __copy_to_user(datavp, &dbginfo,
@@ -1646,7 +1646,7 @@ long arch_ptrace(struct task_struct *child, long request,
 	case PPC_PTRACE_SETHWDEBUG: {
 		struct ppc_hw_breakpoint bp_info;
 
-		if (!access_ok(VERIFY_READ, datavp,
+		if (!access_ok(datavp,
 			       sizeof(struct ppc_hw_breakpoint)))
 			return -EFAULT;
 		ret = __copy_from_user(&bp_info, datavp,

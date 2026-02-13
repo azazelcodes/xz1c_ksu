@@ -63,7 +63,7 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 	decode_address(buf, (unsigned int)stack);
 	printk(KERN_NOTICE " SP: [0x%p] %s\n", stack, buf);
 
-	if (!access_ok(VERIFY_READ, stack, (unsigned int)endstack - (unsigned int)stack)) {
+	if (!access_ok(stack, (unsigned int)endstack - (unsigned int)stack)) {
 		printk(KERN_NOTICE "Invalid stack pointer\n");
 		return;
 	}

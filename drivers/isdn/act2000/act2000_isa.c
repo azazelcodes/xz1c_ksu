@@ -410,7 +410,7 @@ act2000_isa_download(act2000_card *card, act2000_ddef __user *cb)
 		return -EFAULT;
 	length = cblock.length;
 	p = cblock.buffer;
-	if (!access_ok(VERIFY_READ, p, length))
+	if (!access_ok(p, length))
 		return -EFAULT;
 	buf = kmalloc(1024, GFP_KERNEL);
 	if (!buf)

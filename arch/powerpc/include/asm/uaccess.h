@@ -11,8 +11,6 @@
 #include <asm/page.h>
 #include <asm/kup.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -377,7 +375,7 @@ static inline unsigned long copy_from_user(void *to,
 {
 	unsigned long ret;
 
-	if (likely(access_ok(VERIFY_READ, from, n))) {
+	if (likely(access_ok(from, n))) {
 		check_object_size(to, n, false);
 		allow_user_access(to, from, n);
 		barrier_nospec();
@@ -392,7 +390,7 @@ static inline unsigned long copy_from_user(void *to,
 static inline unsigned long copy_to_user(void __user *to,
 		const void *from, unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n)) {
+	if (access_ok(to, n)) {
 		check_object_size(from, n, true);
 		return __copy_tofrom_user(to, (__force void __user *)from, n);
 	}

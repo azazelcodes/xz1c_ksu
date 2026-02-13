@@ -1194,7 +1194,7 @@ long strnlen_user(const char __user *src, long count)
 {
 	long res;
 
-	if (!access_ok(VERIFY_READ, src, 0))
+	if (!access_ok(src, 0))
 		return 0;
 
 	asm volatile ("	MOV     D0Ar4, %1\n"

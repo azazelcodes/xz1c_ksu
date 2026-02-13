@@ -225,7 +225,7 @@ static int put_compat_statfs(struct compat_statfs __user *ubuf, struct kstatfs *
 		 && (kbuf->f_ffree & 0xffffffff00000000ULL))
 			return -EOVERFLOW;
 	}
-	if (!access_ok(VERIFY_WRITE, ubuf, sizeof(*ubuf)) ||
+	if (!access_ok(ubuf, sizeof(*ubuf)) ||
 	    __put_user(kbuf->f_type, &ubuf->f_type) ||
 	    __put_user(kbuf->f_bsize, &ubuf->f_bsize) ||
 	    __put_user(kbuf->f_blocks, &ubuf->f_blocks) ||
@@ -280,7 +280,7 @@ static int put_compat_statfs64(struct compat_statfs64 __user *ubuf, struct kstat
 		 && (kbuf->f_ffree & 0xffffffff00000000ULL))
 			return -EOVERFLOW;
 	}
-	if (!access_ok(VERIFY_WRITE, ubuf, sizeof(*ubuf)) ||
+	if (!access_ok(ubuf, sizeof(*ubuf)) ||
 	    __put_user(kbuf->f_type, &ubuf->f_type) ||
 	    __put_user(kbuf->f_bsize, &ubuf->f_bsize) ||
 	    __put_user(kbuf->f_blocks, &ubuf->f_blocks) ||
@@ -349,7 +349,7 @@ COMPAT_SYSCALL_DEFINE2(ustat, unsigned, dev, struct compat_ustat __user *, u)
 
 static int get_compat_flock(struct flock *kfl, struct compat_flock __user *ufl)
 {
-	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)) ||
+	if (!access_ok(ufl, sizeof(*ufl)) ||
 	    __get_user(kfl->l_type, &ufl->l_type) ||
 	    __get_user(kfl->l_whence, &ufl->l_whence) ||
 	    __get_user(kfl->l_start, &ufl->l_start) ||
@@ -361,7 +361,7 @@ static int get_compat_flock(struct flock *kfl, struct compat_flock __user *ufl)
 
 static int put_compat_flock(struct flock *kfl, struct compat_flock __user *ufl)
 {
-	if (!access_ok(VERIFY_WRITE, ufl, sizeof(*ufl)) ||
+	if (!access_ok(ufl, sizeof(*ufl)) ||
 	    __put_user(kfl->l_type, &ufl->l_type) ||
 	    __put_user(kfl->l_whence, &ufl->l_whence) ||
 	    __put_user(kfl->l_start, &ufl->l_start) ||
@@ -374,7 +374,7 @@ static int put_compat_flock(struct flock *kfl, struct compat_flock __user *ufl)
 #ifndef HAVE_ARCH_GET_COMPAT_FLOCK64
 static int get_compat_flock64(struct flock *kfl, struct compat_flock64 __user *ufl)
 {
-	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)) ||
+	if (!access_ok(ufl, sizeof(*ufl)) ||
 	    __get_user(kfl->l_type, &ufl->l_type) ||
 	    __get_user(kfl->l_whence, &ufl->l_whence) ||
 	    __get_user(kfl->l_start, &ufl->l_start) ||
@@ -388,7 +388,7 @@ static int get_compat_flock64(struct flock *kfl, struct compat_flock64 __user *u
 #ifndef HAVE_ARCH_PUT_COMPAT_FLOCK64
 static int put_compat_flock64(struct flock *kfl, struct compat_flock64 __user *ufl)
 {
-	if (!access_ok(VERIFY_WRITE, ufl, sizeof(*ufl)) ||
+	if (!access_ok(ufl, sizeof(*ufl)) ||
 	    __put_user(kfl->l_type, &ufl->l_type) ||
 	    __put_user(kfl->l_whence, &ufl->l_whence) ||
 	    __put_user(kfl->l_start, &ufl->l_start) ||
@@ -573,7 +573,7 @@ ssize_t compat_rw_copy_check_uvector(int type,
 	*ret_pointer = iov;
 
 	ret = -EFAULT;
-	if (!access_ok(VERIFY_READ, uvector, nr_segs*sizeof(*uvector)))
+	if (!access_ok(uvector, nr_segs*sizeof(*uvector)))
 		goto out;
 
 	/*
@@ -917,7 +917,7 @@ int compat_get_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
 	if (ufdset) {
 		unsigned long odd;
 
-		if (!access_ok(VERIFY_WRITE, ufdset, nr*sizeof(compat_ulong_t)))
+		if (!access_ok(ufdset, nr*sizeof(compat_ulong_t)))
 			return -EFAULT;
 
 		odd = nr & 1UL;
@@ -1155,7 +1155,7 @@ COMPAT_SYSCALL_DEFINE6(pselect6, int, n, compat_ulong_t __user *, inp,
 	compat_uptr_t up = 0;
 
 	if (sig) {
-		if (!access_ok(VERIFY_READ, sig,
+		if (!access_ok(sig,
 				sizeof(compat_uptr_t)+sizeof(compat_size_t)) ||
 		    	__get_user(up, (compat_uptr_t __user *)sig) ||
 		    	__get_user(sigsetsize,

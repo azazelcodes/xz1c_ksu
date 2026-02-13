@@ -999,7 +999,7 @@ validate_exec_list(struct drm_device *dev,
 		 * to read, but since we may need to update the presumed
 		 * offsets during execution, check for full write access.
 		 */
-		if (!access_ok(VERIFY_WRITE, ptr, length))
+		if (!access_ok(ptr, length))
 			return -EFAULT;
 
 		if (likely(!i915.prefault_disable)) {

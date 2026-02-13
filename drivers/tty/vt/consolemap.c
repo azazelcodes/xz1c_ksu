@@ -311,7 +311,7 @@ int con_set_trans_old(unsigned char __user * arg)
 	int i;
 	unsigned short *p = translations[USER_MAP];
 
-	if (!access_ok(VERIFY_READ, arg, E_TABSZ))
+	if (!access_ok(arg, E_TABSZ))
 		return -EFAULT;
 
 	console_lock();
@@ -331,7 +331,7 @@ int con_get_trans_old(unsigned char __user * arg)
 	int i, ch;
 	unsigned short *p = translations[USER_MAP];
 
-	if (!access_ok(VERIFY_WRITE, arg, E_TABSZ))
+	if (!access_ok(arg, E_TABSZ))
 		return -EFAULT;
 
 	console_lock();
@@ -349,7 +349,7 @@ int con_set_trans_new(ushort __user * arg)
 	int i;
 	unsigned short *p = translations[USER_MAP];
 
-	if (!access_ok(VERIFY_READ, arg, E_TABSZ*sizeof(unsigned short)))
+	if (!access_ok(arg, E_TABSZ*sizeof(unsigned short)))
 		return -EFAULT;
 
 	console_lock();
@@ -369,7 +369,7 @@ int con_get_trans_new(ushort __user * arg)
 	int i;
 	unsigned short *p = translations[USER_MAP];
 
-	if (!access_ok(VERIFY_WRITE, arg, E_TABSZ*sizeof(unsigned short)))
+	if (!access_ok(arg, E_TABSZ*sizeof(unsigned short)))
 		return -EFAULT;
 
 	console_lock();

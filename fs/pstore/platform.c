@@ -443,7 +443,7 @@ static int pstore_write_buf_user_compat(enum pstore_type_id type,
 	size_t i, bufsize = size;
 	long ret = 0;
 
-	if (unlikely(!access_ok(VERIFY_READ, buf, size)))
+	if (unlikely(!access_ok(buf, size)))
 		return -EFAULT;
 	if (bufsize > psinfo->bufsize)
 		bufsize = psinfo->bufsize;

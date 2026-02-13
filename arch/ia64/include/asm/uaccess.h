@@ -48,8 +48,6 @@
 #define KERNEL_DS	((mm_segment_t) { ~0UL })		/* cf. access_ok() */
 #define USER_DS		((mm_segment_t) { TASK_SIZE-1 })	/* cf. access_ok() */
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 #define get_ds()  (KERNEL_DS)
 #define get_fs()  (current_thread_info()->addr_limit)
@@ -284,7 +282,7 @@ copy_from_user(void *to, const void __user *from, unsigned long n)
 static inline unsigned long
 copy_in_user (void __user *to, const void __user *from, unsigned long n)
 {
-	if (likely(access_ok(VERIFY_READ, from, n) && access_ok(VERIFY_WRITE, to, n)))
+	if (likely(access_ok(from, n) && access_ok(to, n)))
 		n = __copy_user(to, from, n);
 	return n;
 }

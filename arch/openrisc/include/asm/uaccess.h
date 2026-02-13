@@ -28,8 +28,6 @@
 #include <linux/string.h>
 #include <asm/page.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -275,7 +273,7 @@ copy_from_user(void *to, const void *from, unsigned long n)
 {
 	unsigned long res = n;
 
-	if (likely(access_ok(VERIFY_READ, from, n)))
+	if (likely(access_ok(from, n)))
 		res = __copy_tofrom_user(to, from, n);
 	if (unlikely(res))
 		memset(to + (n - res), 0, res);
@@ -285,7 +283,7 @@ copy_from_user(void *to, const void *from, unsigned long n)
 static inline unsigned long
 copy_to_user(void *to, const void *from, unsigned long n)
 {
-	if (likely(access_ok(VERIFY_WRITE, to, n)))
+	if (likely(access_ok(to, n)))
 		n = __copy_tofrom_user(to, from, n);
 	return n;
 }

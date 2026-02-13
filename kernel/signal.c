@@ -3318,7 +3318,7 @@ do_sigaltstack (const stack_t __user *uss, stack_t __user *uoss, unsigned long s
 		int ss_flags;
 
 		error = -EFAULT;
-		if (!access_ok(VERIFY_READ, uss, sizeof(*uss)))
+		if (!access_ok(uss, sizeof(*uss)))
 			goto out;
 		error = __get_user(ss_sp, &uss->ss_sp) |
 			__get_user(ss_flags, &uss->ss_flags) |
@@ -3357,7 +3357,7 @@ do_sigaltstack (const stack_t __user *uss, stack_t __user *uoss, unsigned long s
 	error = 0;
 	if (uoss) {
 		error = -EFAULT;
-		if (!access_ok(VERIFY_WRITE, uoss, sizeof(*uoss)))
+		if (!access_ok(uoss, sizeof(*uoss)))
 			goto out;
 		error = __put_user(oss.ss_sp, &uoss->ss_sp) |
 			__put_user(oss.ss_size, &uoss->ss_size) |
@@ -3413,7 +3413,7 @@ COMPAT_SYSCALL_DEFINE2(sigaltstack,
 			     compat_user_stack_pointer());
 	set_fs(seg);
 	if (ret >= 0 && uoss_ptr)  {
-		if (!access_ok(VERIFY_WRITE, uoss_ptr, sizeof(compat_stack_t)) ||
+		if (!access_ok(uoss_ptr, sizeof(compat_stack_t)) ||
 		    __put_user(ptr_to_compat(uoss.ss_sp), &uoss_ptr->ss_sp) ||
 		    __put_user(uoss.ss_flags, &uoss_ptr->ss_flags) ||
 		    __put_user(uoss.ss_size, &uoss_ptr->ss_size))

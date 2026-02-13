@@ -69,7 +69,7 @@ static int compat_r128_init(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	init = compat_alloc_user_space(sizeof(*init));
-	if (!access_ok(VERIFY_WRITE, init, sizeof(*init))
+	if (!access_ok(init, sizeof(*init))
 	    || __put_user(init32.func, &init->func)
 	    || __put_user(init32.sarea_priv_offset, &init->sarea_priv_offset)
 	    || __put_user(init32.is_pci, &init->is_pci)
@@ -117,7 +117,7 @@ static int compat_r128_depth(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	depth = compat_alloc_user_space(sizeof(*depth));
-	if (!access_ok(VERIFY_WRITE, depth, sizeof(*depth))
+	if (!access_ok(depth, sizeof(*depth))
 	    || __put_user(depth32.func, &depth->func)
 	    || __put_user(depth32.n, &depth->n)
 	    || __put_user((int __user *)(unsigned long)depth32.x, &depth->x)
@@ -146,7 +146,7 @@ static int compat_r128_stipple(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	stipple = compat_alloc_user_space(sizeof(*stipple));
-	if (!access_ok(VERIFY_WRITE, stipple, sizeof(*stipple))
+	if (!access_ok(stipple, sizeof(*stipple))
 	    || __put_user((unsigned int __user *)(unsigned long)stipple32.mask,
 			  &stipple->mask))
 		return -EFAULT;
@@ -169,7 +169,7 @@ static int compat_r128_getparam(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	getparam = compat_alloc_user_space(sizeof(*getparam));
-	if (!access_ok(VERIFY_WRITE, getparam, sizeof(*getparam))
+	if (!access_ok(getparam, sizeof(*getparam))
 	    || __put_user(getparam32.param, &getparam->param)
 	    || __put_user((void __user *)(unsigned long)getparam32.value,
 			  &getparam->value))

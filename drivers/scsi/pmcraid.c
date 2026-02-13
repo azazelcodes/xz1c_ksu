@@ -3942,7 +3942,7 @@ static long pmcraid_ioctl_driver(
 {
 	int rc = -ENOSYS;
 
-	if (!access_ok(VERIFY_READ, user_buffer, _IOC_SIZE(cmd))) {
+	if (!access_ok(user_buffer, _IOC_SIZE(cmd))) {
 		pmcraid_err("ioctl_driver: access fault in request buffer\n");
 		return -EFAULT;
 	}

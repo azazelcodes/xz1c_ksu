@@ -144,7 +144,7 @@ score_rt_sigreturn(struct pt_regs *regs)
 	current->restart_block.fn = do_no_restart_syscall;
 
 	frame = (struct rt_sigframe __user *) regs->regs[0];
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->rs_uc.uc_sigmask, sizeof(set)))
 		goto badframe;
@@ -180,7 +180,7 @@ static int setup_rt_frame(struct ksignal *ksig, struct pt_regs *regs,
 	int err = 0;
 
 	frame = get_sigframe(&ksig->ka, regs, sizeof(*frame));
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		return -EFAULT;
 
 	/*

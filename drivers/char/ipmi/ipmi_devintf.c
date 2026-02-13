@@ -701,7 +701,7 @@ static long get_compat_ipmi_msg(struct ipmi_msg *p64,
 {
 	compat_uptr_t tmp;
 
-	if (!access_ok(VERIFY_READ, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			__get_user(p64->netfn, &p32->netfn) ||
 			__get_user(p64->cmd, &p32->cmd) ||
 			__get_user(p64->data_len, &p32->data_len) ||
@@ -714,7 +714,7 @@ static long get_compat_ipmi_msg(struct ipmi_msg *p64,
 static long put_compat_ipmi_msg(struct ipmi_msg *p64,
 				struct compat_ipmi_msg __user *p32)
 {
-	if (!access_ok(VERIFY_WRITE, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			__put_user(p64->netfn, &p32->netfn) ||
 			__put_user(p64->cmd, &p32->cmd) ||
 			__put_user(p64->data_len, &p32->data_len))
@@ -728,7 +728,7 @@ static long get_compat_ipmi_req(struct ipmi_req *p64,
 
 	compat_uptr_t	tmp;
 
-	if (!access_ok(VERIFY_READ, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			__get_user(tmp, &p32->addr) ||
 			__get_user(p64->addr_len, &p32->addr_len) ||
 			__get_user(p64->msgid, &p32->msgid) ||
@@ -741,7 +741,7 @@ static long get_compat_ipmi_req(struct ipmi_req *p64,
 static long get_compat_ipmi_req_settime(struct ipmi_req_settime *p64,
 		struct compat_ipmi_req_settime __user *p32)
 {
-	if (!access_ok(VERIFY_READ, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			get_compat_ipmi_req(&p64->req, &p32->req) ||
 			__get_user(p64->retries, &p32->retries) ||
 			__get_user(p64->retry_time_ms, &p32->retry_time_ms))
@@ -754,7 +754,7 @@ static long get_compat_ipmi_recv(struct ipmi_recv *p64,
 {
 	compat_uptr_t tmp;
 
-	if (!access_ok(VERIFY_READ, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			__get_user(p64->recv_type, &p32->recv_type) ||
 			__get_user(tmp, &p32->addr) ||
 			__get_user(p64->addr_len, &p32->addr_len) ||
@@ -768,7 +768,7 @@ static long get_compat_ipmi_recv(struct ipmi_recv *p64,
 static long put_compat_ipmi_recv(struct ipmi_recv *p64,
 				 struct compat_ipmi_recv __user *p32)
 {
-	if (!access_ok(VERIFY_WRITE, p32, sizeof(*p32)) ||
+	if (!access_ok(p32, sizeof(*p32)) ||
 			__put_user(p64->recv_type, &p32->recv_type) ||
 			__put_user(p64->addr_len, &p32->addr_len) ||
 			__put_user(p64->msgid, &p32->msgid) ||

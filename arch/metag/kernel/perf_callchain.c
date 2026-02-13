@@ -37,7 +37,7 @@ user_backtrace(struct metag_frame __user *user_frame,
 	/* We cannot rely on having frame pointers in user code. */
 	while (1) {
 		/* Also check accessibility of one struct frame beyond */
-		if (!access_ok(VERIFY_READ, user_frame, sizeof(frame)))
+		if (!access_ok(user_frame, sizeof(frame)))
 			return 0;
 		if (__copy_from_user_inatomic(&frame, user_frame,
 					      sizeof(frame)))

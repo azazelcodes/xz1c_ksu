@@ -56,7 +56,7 @@ int ptrace_getregs(struct task_struct *child, void __user *uregs)
 	unsigned long wb = regs->windowbase;
 	int i;
 
-	if (!access_ok(VERIFY_WRITE, uregs, sizeof(xtensa_gregset_t)))
+	if (!access_ok(uregs, sizeof(xtensa_gregset_t)))
 		return -EIO;
 
 	__put_user(regs->pc, &gregset->pc);
@@ -83,7 +83,7 @@ int ptrace_setregs(struct task_struct *child, void __user *uregs)
 	unsigned long ps;
 	unsigned long wb, ws;
 
-	if (!access_ok(VERIFY_WRITE, uregs, sizeof(xtensa_gregset_t)))
+	if (!access_ok(uregs, sizeof(xtensa_gregset_t)))
 		return -EIO;
 
 	__get_user(regs->pc, &gregset->pc);
@@ -131,7 +131,7 @@ int ptrace_getxregs(struct task_struct *child, void __user *uregs)
 	elf_xtregs_t __user *xtregs = uregs;
 	int ret = 0;
 
-	if (!access_ok(VERIFY_WRITE, uregs, sizeof(elf_xtregs_t)))
+	if (!access_ok(uregs, sizeof(elf_xtregs_t)))
 		return -EIO;
 
 #if XTENSA_HAVE_COPROCESSORS
@@ -155,7 +155,7 @@ int ptrace_setxregs(struct task_struct *child, void __user *uregs)
 	elf_xtregs_t *xtregs = uregs;
 	int ret = 0;
 
-	if (!access_ok(VERIFY_READ, uregs, sizeof(elf_xtregs_t)))
+	if (!access_ok(uregs, sizeof(elf_xtregs_t)))
 		return -EFAULT;
 
 #if XTENSA_HAVE_COPROCESSORS

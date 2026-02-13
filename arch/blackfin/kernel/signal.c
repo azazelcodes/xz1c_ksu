@@ -85,7 +85,7 @@ asmlinkage int sys_rt_sigreturn(void)
 	sigset_t set;
 	int r0;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;

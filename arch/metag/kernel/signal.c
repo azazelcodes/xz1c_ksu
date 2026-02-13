@@ -77,7 +77,7 @@ long sys_rt_sigreturn(void)
 	frame = (__force struct rt_sigframe __user *)(regs->REG_SP -
 						      sizeof(*frame));
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
@@ -156,7 +156,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 	unsigned long code;
 
 	frame = get_sigframe(ksig, regs->REG_SP);
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		return -EFAULT;
 
 	err = copy_siginfo_to_user(&frame->info, &ksig->info);

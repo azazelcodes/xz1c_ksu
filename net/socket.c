@@ -1680,7 +1680,7 @@ SYSCALL_DEFINE6(sendto, int, fd, void __user *, buff, size_t, len,
 
 	if (len > INT_MAX)
 		len = INT_MAX;
-	if (unlikely(!access_ok(VERIFY_READ, buff, len)))
+	if (unlikely(!access_ok(buff, len)))
 		return -EFAULT;
 
 	err = import_single_range(WRITE, buff, len, &iov, &msg.msg_iter);
@@ -1741,7 +1741,7 @@ SYSCALL_DEFINE6(recvfrom, int, fd, void __user *, ubuf, size_t, size,
 
 	if (size > INT_MAX)
 		size = INT_MAX;
-	if (unlikely(!access_ok(VERIFY_WRITE, ubuf, size)))
+	if (unlikely(!access_ok(ubuf, size)))
 		return -EFAULT;
 	err = import_single_range(READ, ubuf, size, &iov, &msg.msg_iter);
 	if (unlikely(err))
@@ -1892,7 +1892,7 @@ static int copy_msghdr_from_user(struct msghdr *kmsg,
 	size_t nr_segs;
 	ssize_t err;
 
-	if (!access_ok(VERIFY_READ, umsg, sizeof(*umsg)) ||
+	if (!access_ok(umsg, sizeof(*umsg)) ||
 	    __get_user(uaddr, &umsg->msg_name) ||
 	    __get_user(kmsg->msg_namelen, &umsg->msg_namelen) ||
 	    __get_user(uiov, &umsg->msg_iov) ||

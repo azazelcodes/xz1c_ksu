@@ -2341,7 +2341,7 @@ static int cryptocop_ioctl_close_session(struct inode *inode, struct file *filp,
 
 	DEBUG(printk("cryptocop_ioctl_close_session\n"));
 
-	if (!access_ok(VERIFY_READ, sess_op, sizeof(struct strcop_session_op)))
+	if (!access_ok(sess_op, sizeof(struct strcop_session_op)))
 		return -EFAULT;
 	err = copy_from_user(&sop, sess_op, sizeof(struct strcop_session_op));
 	if (err) return -EFAULT;
@@ -2519,7 +2519,7 @@ static int cryptocop_ioctl_process(struct inode *inode, struct file *filp, unsig
 
 	DEBUG(printk("cryptocop_ioctl_process\n"));
 
-	if (!access_ok(VERIFY_WRITE, crp_oper, sizeof(struct strcop_crypto_op))){
+	if (!access_ok(crp_oper, sizeof(struct strcop_crypto_op))){
 		DEBUG_API(printk("cryptocop_ioctl_process: !access_ok crp_oper!\n"));
 		return -EFAULT;
 	}
@@ -2541,11 +2541,11 @@ static int cryptocop_ioctl_process(struct inode *inode, struct file *filp, unsig
 		return -EINVAL;
 	}
 
-	if (!access_ok(VERIFY_WRITE, oper.cipher_outdata, oper.cipher_outlen)){
+	if (!access_ok(oper.cipher_outdata, oper.cipher_outlen)){
 		DEBUG_API(printk("cryptocop_ioctl_process: !access_ok out data!\n"));
 		return -EFAULT;
 	}
-	if (!access_ok(VERIFY_READ, oper.indata, oper.inlen)){
+	if (!access_ok(oper.indata, oper.inlen)){
 		DEBUG_API(printk("cryptocop_ioctl_process: !access_ok in data!\n"));
 		return -EFAULT;
 	}
@@ -2977,12 +2977,12 @@ static int cryptocop_ioctl_create_session(struct inode *inode, struct file *filp
 	struct cryptocop_transform_init  ti_digest = {0};
 	struct cryptocop_transform_init  ti_csum = {0};
 
-	if (!access_ok(VERIFY_WRITE, sess_op, sizeof(struct strcop_session_op)))
+	if (!access_ok(sess_op, sizeof(struct strcop_session_op)))
 		return -EFAULT;
 	err = copy_from_user(&sop, sess_op, sizeof(struct strcop_session_op));
 	if (err) return -EFAULT;
 	if (sop.cipher != cryptocop_cipher_none) {
-		if (!access_ok(VERIFY_READ, sop.key, sop.keylen)) return -EFAULT;
+		if (!access_ok(sop.key, sop.keylen)) return -EFAULT;
 	}
 	DEBUG(printk("cryptocop_ioctl_create_session, sess_op:\n"));
 
@@ -3111,9 +3111,9 @@ static long cryptocop_ioctl_unlocked(struct inode *inode,
 	/* Access check of the argument.  Some commands, e.g. create session and process op,
 	   needs additional checks.  Those are handled in the command handling functions. */
 	if (_IOC_DIR(cmd) & _IOC_READ)
-		err = !access_ok(VERIFY_WRITE, (void *)arg, _IOC_SIZE(cmd));
+		err = !access_ok((void *)arg, _IOC_SIZE(cmd));
 	else if (_IOC_DIR(cmd) & _IOC_WRITE)
-		err = !access_ok(VERIFY_READ, (void *)arg, _IOC_SIZE(cmd));
+		err = !access_ok((void *)arg, _IOC_SIZE(cmd));
 	if (err) return -EFAULT;
 
 	switch (cmd) {

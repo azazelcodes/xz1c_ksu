@@ -708,7 +708,7 @@ SYSCALL_DEFINE2(osf_sigstack, struct sigstack __user *, uss,
 
 	if (uoss) {
 		error = -EFAULT;
-		if (! access_ok(VERIFY_WRITE, uoss, sizeof(*uoss))
+		if (! access_ok(uoss, sizeof(*uoss))
 		    || __put_user(oss_sp, &uoss->ss_sp)
 		    || __put_user(oss_os, &uoss->ss_onstack))
 			goto out;
@@ -946,7 +946,7 @@ struct itimerval32
 static inline long
 get_tv32(struct timeval *o, struct timeval32 __user *i)
 {
-	return (!access_ok(VERIFY_READ, i, sizeof(*i)) ||
+	return (!access_ok(i, sizeof(*i)) ||
 		(__get_user(o->tv_sec, &i->tv_sec) |
 		 __get_user(o->tv_usec, &i->tv_usec)));
 }
@@ -954,7 +954,7 @@ get_tv32(struct timeval *o, struct timeval32 __user *i)
 static inline long
 put_tv32(struct timeval32 __user *o, struct timeval *i)
 {
-	return (!access_ok(VERIFY_WRITE, o, sizeof(*o)) ||
+	return (!access_ok(o, sizeof(*o)) ||
 		(__put_user(i->tv_sec, &o->tv_sec) |
 		 __put_user(i->tv_usec, &o->tv_usec)));
 }
@@ -962,7 +962,7 @@ put_tv32(struct timeval32 __user *o, struct timeval *i)
 static inline long
 get_it32(struct itimerval *o, struct itimerval32 __user *i)
 {
-	return (!access_ok(VERIFY_READ, i, sizeof(*i)) ||
+	return (!access_ok(i, sizeof(*i)) ||
 		(__get_user(o->it_interval.tv_sec, &i->it_interval.tv_sec) |
 		 __get_user(o->it_interval.tv_usec, &i->it_interval.tv_usec) |
 		 __get_user(o->it_value.tv_sec, &i->it_value.tv_sec) |
@@ -972,7 +972,7 @@ get_it32(struct itimerval *o, struct itimerval32 __user *i)
 static inline long
 put_it32(struct itimerval32 __user *o, struct itimerval *i)
 {
-	return (!access_ok(VERIFY_WRITE, o, sizeof(*o)) ||
+	return (!access_ok(o, sizeof(*o)) ||
 		(__put_user(i->it_interval.tv_sec, &o->it_interval.tv_sec) |
 		 __put_user(i->it_interval.tv_usec, &o->it_interval.tv_usec) |
 		 __put_user(i->it_value.tv_sec, &o->it_value.tv_sec) |
@@ -1089,7 +1089,7 @@ SYSCALL_DEFINE5(osf_select, int, n, fd_set __user *, inp, fd_set __user *, outp,
 
 		to = &end_time;
 
-		if (!access_ok(VERIFY_READ, tvp, sizeof(*tvp))
+		if (!access_ok(tvp, sizeof(*tvp))
 		    || __get_user(sec, &tvp->tv_sec)
 		    || __get_user(usec, &tvp->tv_usec)) {
 		    	return -EFAULT;
@@ -1177,7 +1177,7 @@ SYSCALL_DEFINE4(osf_wait4, pid_t, pid, int __user *, ustatus, int, options,
 			(struct rusage __user *) &r);
 	set_fs (old_fs);
 
-	if (!access_ok(VERIFY_WRITE, ur, sizeof(*ur)))
+	if (!access_ok(ur, sizeof(*ur)))
 		return -EFAULT;
 
 	err = put_user(status, ustatus);

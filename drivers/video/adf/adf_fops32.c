@@ -29,7 +29,7 @@ long adf_compat_post_config(struct file *file,
 		return -EFAULT;
 
 	cfg = compat_alloc_user_space(sizeof(*cfg));
-	if (!access_ok(VERIFY_WRITE, cfg, sizeof(*cfg)))
+	if (!access_ok(cfg, sizeof(*cfg)))
 		return -EFAULT;
 
 	if (put_user(cfg32.n_interfaces, &cfg->n_interfaces) ||
@@ -65,7 +65,7 @@ long adf_compat_get_device_data(struct file *file,
 		return -EFAULT;
 
 	data = compat_alloc_user_space(sizeof(*data));
-	if (!access_ok(VERIFY_WRITE, data, sizeof(*data)))
+	if (!access_ok(data, sizeof(*data)))
 		return -EFAULT;
 
 	if (put_user(data32.n_attachments, &data->n_attachments) ||
@@ -110,7 +110,7 @@ long adf_compat_get_interface_data(struct file *file,
 		return -EFAULT;
 
 	data = compat_alloc_user_space(sizeof(*data));
-	if (!access_ok(VERIFY_WRITE, data, sizeof(*data)))
+	if (!access_ok(data, sizeof(*data)))
 		return -EFAULT;
 
 	if (put_user(data32.n_available_modes, &data->n_available_modes) ||
@@ -165,7 +165,7 @@ long adf_compat_get_overlay_engine_data(struct file *file,
 		return -EFAULT;
 
 	data = compat_alloc_user_space(sizeof(*data));
-	if (!access_ok(VERIFY_WRITE, data, sizeof(*data)))
+	if (!access_ok(data, sizeof(*data)))
 		return -EFAULT;
 
 	if (put_user(data32.n_supported_formats, &data->n_supported_formats) ||

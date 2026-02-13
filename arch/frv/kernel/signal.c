@@ -88,7 +88,7 @@ asmlinkage int sys_sigreturn(void)
 	sigset_t set;
 	int gr8;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__get_user(set.sig[0], &frame->sc.sc_oldmask))
 		goto badframe;
@@ -114,7 +114,7 @@ asmlinkage int sys_rt_sigreturn(void)
 	sigset_t set;
 	int gr8;
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;
@@ -178,7 +178,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set)
 
 	frame = get_sigframe(ksig, sizeof(*frame));
 
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		return -EFAULT;
 
 	if (__put_user(sig, &frame->sig) < 0)
@@ -251,7 +251,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set)
 
 	frame = get_sigframe(ksig, sizeof(*frame));
 
-	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		return -EFAULT;
 
 	if (__put_user(sig,		&frame->sig) ||

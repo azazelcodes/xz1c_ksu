@@ -66,7 +66,7 @@ static int compat_radeon_cp_init(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	init = compat_alloc_user_space(sizeof(*init));
-	if (!access_ok(VERIFY_WRITE, init, sizeof(*init))
+	if (!access_ok(init, sizeof(*init))
 	    || __put_user(init32.func, &init->func)
 	    || __put_user(init32.sarea_priv_offset, &init->sarea_priv_offset)
 	    || __put_user(init32.is_pci, &init->is_pci)
@@ -113,7 +113,7 @@ static int compat_radeon_cp_clear(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	clr = compat_alloc_user_space(sizeof(*clr));
-	if (!access_ok(VERIFY_WRITE, clr, sizeof(*clr))
+	if (!access_ok(clr, sizeof(*clr))
 	    || __put_user(clr32.flags, &clr->flags)
 	    || __put_user(clr32.clear_color, &clr->clear_color)
 	    || __put_user(clr32.clear_depth, &clr->clear_depth)
@@ -141,7 +141,7 @@ static int compat_radeon_cp_stipple(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user((unsigned int __user *)(unsigned long)mask,
 			  &request->mask))
 		return -EFAULT;
@@ -181,7 +181,7 @@ static int compat_radeon_cp_texture(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request) + sizeof(*image));
-	if (!access_ok(VERIFY_WRITE, request,
+	if (!access_ok(request,
 		       sizeof(*request) + sizeof(*image)))
 		return -EFAULT;
 	image = (drm_radeon_tex_image_t __user *) (request + 1);
@@ -222,7 +222,7 @@ static int compat_radeon_cp_vertex2(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user(req32.idx, &request->idx)
 	    || __put_user(req32.discard, &request->discard)
 	    || __put_user(req32.nr_states, &request->nr_states)
@@ -253,7 +253,7 @@ static int compat_radeon_cp_cmdbuf(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user(req32.bufsz, &request->bufsz)
 	    || __put_user((void __user *)(unsigned long)req32.buf,
 			  &request->buf)
@@ -280,7 +280,7 @@ static int compat_radeon_cp_getparam(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user(req32.param, &request->param)
 	    || __put_user((void __user *)(unsigned long)req32.value,
 			  &request->value))
@@ -306,7 +306,7 @@ static int compat_radeon_mem_alloc(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user(req32.region, &request->region)
 	    || __put_user(req32.alignment, &request->alignment)
 	    || __put_user(req32.size, &request->size)
@@ -331,7 +331,7 @@ static int compat_radeon_irq_emit(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user((int __user *)(unsigned long)req32.irq_seq,
 			  &request->irq_seq))
 		return -EFAULT;
@@ -356,7 +356,7 @@ static int compat_radeon_cp_setparam(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	request = compat_alloc_user_space(sizeof(*request));
-	if (!access_ok(VERIFY_WRITE, request, sizeof(*request))
+	if (!access_ok(request, sizeof(*request))
 	    || __put_user(req32.param, &request->param)
 	    || __put_user((void __user *)(unsigned long)req32.value,
 			  &request->value))

@@ -795,7 +795,7 @@ COMPAT_SYSCALL_DEFINE3(getdents, unsigned int, fd,
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
 	struct inode *inode;
 #endif
-	if (!access_ok(VERIFY_WRITE, dirent, count))
+	if (!access_ok(dirent, count))
 		return -EFAULT;
 
 	f = fdget(fd);

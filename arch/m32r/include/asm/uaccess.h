@@ -16,8 +16,6 @@
 #include <asm/page.h>
 #include <asm/setup.h>
 
-#define VERIFY_READ 0
-#define VERIFY_WRITE 1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -104,7 +102,7 @@ static inline void set_fs(mm_segment_t s)
  * this function, memory access functions may still return -EFAULT.
  */
 #ifdef CONFIG_MMU
-#define access_ok(type, addr, size) (likely(__range_ok(addr, size) == 0))
+#define access_ok(addr, size) (likely(__range_ok(addr, size) == 0))
 #else
 static inline int access_ok(int type, const void *addr, unsigned long size)
 {
@@ -232,7 +230,7 @@ extern int fixup_exception(struct pt_regs *regs);
 	unsigned long __gu_val = 0;					\
 	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
 	might_fault();							\
-	if (access_ok(VERIFY_READ, __gu_addr, size))			\
+	if (access_ok(__gu_addr, size))			\
 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
 	__gu_err;							\
@@ -311,7 +309,7 @@ do {									\
 	long __pu_err = -EFAULT;					\
 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
 	might_fault();							\
-	if (access_ok(VERIFY_WRITE, __pu_addr, size))			\
+	if (access_ok(__pu_addr, size))			\
 		__put_user_size((x), __pu_addr, (size), __pu_err);	\
 	__pu_err;							\
 })

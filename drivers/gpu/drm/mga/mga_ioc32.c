@@ -68,7 +68,7 @@ static int compat_mga_init(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	init = compat_alloc_user_space(sizeof(*init));
-	if (!access_ok(VERIFY_WRITE, init, sizeof(*init))
+	if (!access_ok(init, sizeof(*init))
 	    || __put_user(init32.func, &init->func)
 	    || __put_user(init32.sarea_priv_offset, &init->sarea_priv_offset)
 	    || __put_user(init32.chipset, &init->chipset)
@@ -118,7 +118,7 @@ static int compat_mga_getparam(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	getparam = compat_alloc_user_space(sizeof(*getparam));
-	if (!access_ok(VERIFY_WRITE, getparam, sizeof(*getparam))
+	if (!access_ok(getparam, sizeof(*getparam))
 	    || __put_user(getparam32.param, &getparam->param)
 	    || __put_user((void __user *)(unsigned long)getparam32.value,
 			  &getparam->value))
@@ -149,7 +149,7 @@ static int compat_mga_dma_bootstrap(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	dma_bootstrap = compat_alloc_user_space(sizeof(*dma_bootstrap));
-	if (!access_ok(VERIFY_WRITE, dma_bootstrap, sizeof(*dma_bootstrap))
+	if (!access_ok(dma_bootstrap, sizeof(*dma_bootstrap))
 	    || __put_user(dma_bootstrap32.texture_handle,
 			  &dma_bootstrap->texture_handle)
 	    || __put_user(dma_bootstrap32.texture_size,

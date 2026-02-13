@@ -16,8 +16,6 @@
 #include <linux/errno.h>
 #include <asm/ctl_reg.h>
 
-#define VERIFY_READ     0
-#define VERIFY_WRITE    1
 
 
 /*

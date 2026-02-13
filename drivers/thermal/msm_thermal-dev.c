@@ -67,10 +67,10 @@ static long validate_and_copy(unsigned int *cmd, unsigned long *arg,
 	}
 
 	if (_IOC_DIR(*cmd) & _IOC_READ) {
-		err_val = !access_ok(VERIFY_WRITE, (void __user *)*arg,
+		err_val = !access_ok((void __user *)*arg,
 				_IOC_SIZE(*cmd));
 	} else if (_IOC_DIR(*cmd) & _IOC_WRITE) {
-		err_val = !access_ok(VERIFY_READ, (void __user *)*arg,
+		err_val = !access_ok((void __user *)*arg,
 				_IOC_SIZE(*cmd));
 	}
 	if (err_val) {

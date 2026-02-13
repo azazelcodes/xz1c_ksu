@@ -29,10 +29,8 @@ static inline void set_fs(mm_segment_t fs)
 
 #define segment_eq(a, b) ((a) == (b))
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
-#define access_ok(type, addr, size) _access_ok((unsigned long)(addr), (size))
+#define access_ok(addr, size) _access_ok((unsigned long)(addr), (size))
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -73,7 +71,7 @@ struct exception_table_entry {
 		int _err = 0;					\
 		typeof(*(p)) _x = (x);				\
 		typeof(*(p)) __user *_p = (p);			\
-		if (!access_ok(VERIFY_WRITE, _p, sizeof(*(_p)))) {\
+		if (!access_ok(_p, sizeof(*(_p)))) {\
 			_err = -EFAULT;				\
 		}						\
 		else {						\
@@ -132,7 +130,7 @@ static inline int bad_user_access_length(void)
 	unsigned long _val = 0;					\
 	const typeof(*(ptr)) __user *_p = (ptr);		\
 	const size_t ptr_size = sizeof(*(_p));			\
-	if (likely(access_ok(VERIFY_READ, _p, ptr_size))) {	\
+	if (likely(access_ok(_p, ptr_size))) {	\
 		BUILD_BUG_ON(ptr_size >= 8);			\
 		switch (ptr_size) {				\
 		case 1:						\
@@ -177,7 +175,7 @@ static inline int bad_user_access_length(void)
 static inline unsigned long __must_check
 copy_from_user(void *to, const void __user *from, unsigned long n)
 {
-	if (likely(access_ok(VERIFY_READ, from, n))) {
+	if (likely(access_ok(from, n))) {
 		memcpy(to, (const void __force *)from, n);
 		return 0;
 	}
@@ -188,7 +186,7 @@ copy_from_user(void *to, const void __user *from, unsigned long n)
 static inline unsigned long __must_check
 copy_to_user(void __user *to, const void *from, unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		memcpy((void __force *)to, from, n);
 	else
 		return n;
@@ -204,7 +202,7 @@ static inline long __must_check
 strncpy_from_user(char *dst, const char __user *src, long count)
 {
 	char *tmp;
-	if (!access_ok(VERIFY_READ, src, 1))
+	if (!access_ok(src, 1))
 		return -EFAULT;
 	strncpy(dst, (const char __force *)src, count);
 	for (tmp = dst; *tmp && count > 0; tmp++, count--) ;
@@ -224,14 +222,14 @@ strncpy_from_user(char *dst, const char __user *src, long count)
  */
 static inline long __must_check strnlen_user(const char __user *src, long n)
 {
-	if (!access_ok(VERIFY_READ, src, 1))
+	if (!access_ok(src, 1))
 		return 0;
 	return strnlen((const char __force *)src, n) + 1;
 }
 
 static inline long __must_check strlen_user(const char __user *src)
 {
-	if (!access_ok(VERIFY_READ, src, 1))
+	if (!access_ok(src, 1))
 		return 0;
 	return strlen((const char __force *)src) + 1;
 }
@@ -243,7 +241,7 @@ static inline long __must_check strlen_user(const char __user *src)
 static inline unsigned long __must_check
 __clear_user(void __user *to, unsigned long n)
 {
-	if (!access_ok(VERIFY_WRITE, to, n))
+	if (!access_ok(to, n))
 		return n;
 	memset((void __force *)to, 0, n);
 	return 0;

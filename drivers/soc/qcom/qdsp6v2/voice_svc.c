@@ -562,7 +562,7 @@ static ssize_t voice_svc_read(struct file *file, char __user *arg,
 		goto unlock;
 	}
 
-	if (!access_ok(VERIFY_WRITE, arg, size)) {
+	if (!access_ok(arg, size)) {
 		pr_err("%s: Access denied to write\n",
 		       __func__);
 

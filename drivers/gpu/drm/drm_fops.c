@@ -514,7 +514,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
 	struct drm_device *dev = file_priv->minor->dev;
 	ssize_t ret = 0;
 
-	if (!access_ok(VERIFY_WRITE, buffer, count))
+	if (!access_ok(buffer, count))
 		return -EFAULT;
 
 	spin_lock_irq(&dev->event_lock);

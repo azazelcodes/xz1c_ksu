@@ -607,7 +607,7 @@ strnlen_user(const char *s, long n)
 {
 	long res, tmp1;
 
-	if (!access_ok(VERIFY_READ, s, 0))
+	if (!access_ok(s, 0))
 		return 0;
 
 	/*

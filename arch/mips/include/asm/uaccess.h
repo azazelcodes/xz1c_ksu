@@ -70,8 +70,6 @@ extern u64 __ua_limit;
 #define USER_DS		((mm_segment_t) { __UA_LIMIT })
 #endif
 
-#define VERIFY_READ    0
-#define VERIFY_WRITE   1
 
 #define get_ds()	(KERNEL_DS)
 #define get_fs()	(current_thread_info()->addr_limit)
@@ -638,7 +636,7 @@ do {									\
 	int __gu_err = -EFAULT;						\
 	const __typeof__(*(ptr)) __user * __gu_ptr = (ptr);		\
 									\
-	if (likely(access_ok(VERIFY_READ,  __gu_ptr, size)))		\
+	if (likely(access_ok( __gu_ptr, size)))		\
 		__get_user_unaligned_common((x), size, __gu_ptr);	\
 									\
 	__gu_err;							\
@@ -734,7 +732,7 @@ do {									\
 	__typeof__(*(ptr)) __pu_val = (x);				\
 	int __pu_err = -EFAULT;						\
 									\
-	if (likely(access_ok(VERIFY_WRITE,  __pu_addr, size)))		\
+	if (likely(access_ok( __pu_addr, size)))		\
 		__put_user_unaligned_common(__pu_addr, size);		\
 									\
 	__pu_err;							\
@@ -933,7 +931,7 @@ extern size_t __copy_user_inatomic(void *__to, const void *__from, size_t __n);
 						   __cu_from,		\
 						   __cu_len);		\
 	} else {							\
-		if (access_ok(VERIFY_WRITE, __cu_to, __cu_len)) {       \
+		if (access_ok(__cu_to, __cu_len)) {       \
 			might_fault();                                  \
 			__cu_len = __invoke_copy_to_user(__cu_to,	\
 							 __cu_from,	\
@@ -1163,7 +1161,7 @@ extern size_t __copy_in_user_eva(void *__to, const void *__from, size_t __n);
 						     __cu_from,		\
 						     __cu_len);		\
 	} else {							\
-		if (access_ok(VERIFY_READ, __cu_from, __cu_len)) {	\
+		if (access_ok(__cu_from, __cu_len)) {	\
 			might_fault();                                  \
 			__cu_len = __invoke_copy_from_user(__cu_to,	\
 							   __cu_from,	\
@@ -1208,8 +1206,8 @@ extern size_t __copy_in_user_eva(void *__to, const void *__from, size_t __n);
 		__cu_len = ___invoke_copy_in_kernel(__cu_to,__cu_from,	\
 						    __cu_len);		\
 	} else {							\
-		if (likely(access_ok(VERIFY_READ, __cu_from, __cu_len) &&\
-			   access_ok(VERIFY_WRITE, __cu_to, __cu_len))) {\
+		if (likely(access_ok(__cu_from, __cu_len) &&\
+			   access_ok(__cu_to, __cu_len))) {\
 			might_fault();					\
 			__cu_len = ___invoke_copy_in_user(__cu_to,	\
 							  __cu_from,	\

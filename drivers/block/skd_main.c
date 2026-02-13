@@ -1361,7 +1361,7 @@ static int skd_sg_io_get_and_check_args(struct skd_device *skdev,
 	struct sg_io_hdr *sgp = &sksgio->sg;
 	int i, acc;
 
-	if (!access_ok(VERIFY_WRITE, sksgio->argp, sizeof(sg_io_hdr_t))) {
+	if (!access_ok(sksgio->argp, sizeof(sg_io_hdr_t))) {
 		pr_debug("%s:%s:%d access sg failed %p\n",
 			 skdev->name, __func__, __LINE__, sksgio->argp);
 		return -EFAULT;
@@ -1424,7 +1424,7 @@ static int skd_sg_io_get_and_check_args(struct skd_device *skdev,
 	}
 
 	if (sgp->mx_sb_len != 0) {
-		if (!access_ok(VERIFY_WRITE, sgp->sbp, sgp->mx_sb_len)) {
+		if (!access_ok(sgp->sbp, sgp->mx_sb_len)) {
 			pr_debug("%s:%s:%d access sbp failed %p\n",
 				 skdev->name, __func__, __LINE__, sgp->sbp);
 			return -EFAULT;

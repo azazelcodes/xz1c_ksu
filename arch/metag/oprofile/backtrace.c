@@ -15,7 +15,7 @@
 
 static void user_backtrace_fp(unsigned long __user *fp, unsigned int depth)
 {
-	while (depth-- && access_ok(VERIFY_READ, fp, 8)) {
+	while (depth-- && access_ok(fp, 8)) {
 		unsigned long addr;
 		unsigned long __user *fpnew;
 		if (__copy_from_user_inatomic(&addr, fp + 1, sizeof(addr)))

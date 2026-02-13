@@ -915,7 +915,7 @@ icn_loadproto(u_char __user *buffer, icn_card *card)
 #ifdef BOOT_DEBUG
 	printk(KERN_DEBUG "icn_loadproto called\n");
 #endif
-	if (!access_ok(VERIFY_READ, buffer, ICN_CODE_STAGE2))
+	if (!access_ok(buffer, ICN_CODE_STAGE2))
 		return -EFAULT;
 	timer = 0;
 	spin_lock_irqsave(&dev.devlock, flags);

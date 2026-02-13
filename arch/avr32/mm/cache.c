@@ -135,7 +135,7 @@ asmlinkage int sys_cacheflush(int operation, void __user *addr, size_t len)
 	}
 
 	ret = -EFAULT;
-	if (!access_ok(VERIFY_WRITE, addr, len))
+	if (!access_ok(addr, len))
 		goto out;
 
 	switch (operation) {

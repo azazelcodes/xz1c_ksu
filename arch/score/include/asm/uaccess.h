@@ -5,8 +5,6 @@
 #include <linux/errno.h>
 #include <linux/thread_info.h>
 
-#define VERIFY_READ		0
-#define VERIFY_WRITE		1
 
 #define get_ds()		(KERNEL_DS)
 #define get_fs()		(current_thread_info()->addr_limit)
@@ -54,7 +52,7 @@
 		 ((addr) | ((addr) + (size)) |			\
 		  __ua_size(size)))) == 0)
 
-#define access_ok(type, addr, size)				\
+#define access_ok(addr, size)				\
 	likely(__access_ok((unsigned long)(addr), (size)))
 
 /*
@@ -186,7 +184,7 @@ do {									\
 	long __gu_err = -EFAULT;					\
 	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
 									\
-	if (likely(access_ok(VERIFY_READ, __gu_ptr, size)))		\
+	if (likely(access_ok(__gu_ptr, size)))		\
 		__get_user_common((x), size, __gu_ptr);			\
 	else								\
 		(x) = 0;						\
@@ -255,7 +253,7 @@ do {									\
 	__typeof__(*(ptr)) __pu_val = (val);				\
 	long __pu_err = -EFAULT;					\
 									\
-	if (likely(access_ok(VERIFY_WRITE, __pu_addr, size))) {		\
+	if (likely(access_ok(__pu_addr, size))) {		\
 		switch (size) {						\
 		case 1:							\
 			__put_user_asm("sb", __pu_addr);		\
@@ -303,7 +301,7 @@ copy_from_user(void *to, const void *from, unsigned long len)
 {
 	unsigned long res = len;
 
-	if (likely(access_ok(VERIFY_READ, from, len)))
+	if (likely(access_ok(from, len)))
 		res = __copy_tofrom_user(to, from, len);
 
 	if (unlikely(res))
@@ -315,7 +313,7 @@ copy_from_user(void *to, const void *from, unsigned long len)
 static inline unsigned long
 copy_to_user(void *to, const void *from, unsigned long len)
 {
-	if (likely(access_ok(VERIFY_WRITE, to, len)))
+	if (likely(access_ok(to, len)))
 		len = __copy_tofrom_user(to, from, len);
 
 	return len;
@@ -350,7 +348,7 @@ __copy_from_user_inatomic(void *to, const void *from, unsigned long len)
 static inline unsigned long
 copy_in_user(void *to, const void *from, unsigned long len)
 {
-	if (access_ok(VERIFY_READ, from, len) &&
+	if (access_ok(from, len) &&
 		      access_ok(VERFITY_WRITE, to, len))
 		return __copy_tofrom_user(to, from, len);
 }
@@ -370,7 +368,7 @@ extern unsigned long __clear_user(void __user *src, unsigned long size);
 
 static inline unsigned long clear_user(char *src, unsigned long size)
 {
-	if (access_ok(VERIFY_WRITE, src, size))
+	if (access_ok(src, size))
 		return __clear_user(src, size);
 
 	return -EFAULT;
@@ -399,7 +397,7 @@ extern int __strncpy_from_user(char *dst, const char *src, long len);
 
 static inline int strncpy_from_user(char *dst, const char *src, long len)
 {
-	if (access_ok(VERIFY_READ, src, 1))
+	if (access_ok(src, 1))
 		return __strncpy_from_user(dst, src, len);
 
 	return -EFAULT;
@@ -414,7 +412,7 @@ static inline long strlen_user(const char __user *src)
 extern int __strnlen_user(const char *str, long len);
 static inline long strnlen_user(const char __user *str, long len)
 {
-	if (!access_ok(VERIFY_READ, str, 0))
+	if (!access_ok(str, 0))
 		return 0;
 	else		
 		return __strnlen_user(str, len);

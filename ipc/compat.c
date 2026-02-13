@@ -194,7 +194,7 @@ static inline int __put_compat_ipc_perm(struct ipc64_perm *p,
 static inline int get_compat_semid64_ds(struct semid64_ds *sem64,
 					struct compat_semid64_ds __user *up64)
 {
-	if (!access_ok(VERIFY_READ, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	return __get_compat_ipc64_perm(&sem64->sem_perm, &up64->sem_perm);
 }
@@ -202,7 +202,7 @@ static inline int get_compat_semid64_ds(struct semid64_ds *sem64,
 static inline int get_compat_semid_ds(struct semid64_ds *s,
 				      struct compat_semid_ds __user *up)
 {
-	if (!access_ok(VERIFY_READ, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	return __get_compat_ipc_perm(&s->sem_perm, &up->sem_perm);
 }
@@ -212,7 +212,7 @@ static inline int put_compat_semid64_ds(struct semid64_ds *sem64,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	err  = __put_compat_ipc64_perm(&sem64->sem_perm, &up64->sem_perm);
 	err |= __put_user(sem64->sem_otime, &up64->sem_otime);
@@ -226,7 +226,7 @@ static inline int put_compat_semid_ds(struct semid64_ds *s,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	err  = __put_compat_ipc_perm(&s->sem_perm, &up->sem_perm);
 	err |= __put_user(s->sem_otime, &up->sem_otime);
@@ -438,7 +438,7 @@ static inline int get_compat_msqid64(struct msqid64_ds *m64,
 {
 	int err;
 
-	if (!access_ok(VERIFY_READ, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	err  = __get_compat_ipc64_perm(&m64->msg_perm, &up64->msg_perm);
 	err |= __get_user(m64->msg_qbytes, &up64->msg_qbytes);
@@ -450,7 +450,7 @@ static inline int get_compat_msqid(struct msqid64_ds *m,
 {
 	int err;
 
-	if (!access_ok(VERIFY_READ, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	err  = __get_compat_ipc_perm(&m->msg_perm, &up->msg_perm);
 	err |= __get_user(m->msg_qbytes, &up->msg_qbytes);
@@ -462,7 +462,7 @@ static inline int put_compat_msqid64_ds(struct msqid64_ds *m64,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	err  = __put_compat_ipc64_perm(&m64->msg_perm, &up64->msg_perm);
 	err |= __put_user(m64->msg_stime, &up64->msg_stime);
@@ -481,7 +481,7 @@ static inline int put_compat_msqid_ds(struct msqid64_ds *m,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	err  = __put_compat_ipc_perm(&m->msg_perm, &up->msg_perm);
 	err |= __put_user(m->msg_stime, &up->msg_stime);
@@ -564,7 +564,7 @@ COMPAT_SYSCALL_DEFINE3(shmat, int, shmid, compat_uptr_t, shmaddr, int, shmflg)
 static inline int get_compat_shmid64_ds(struct shmid64_ds *sem64,
 					struct compat_shmid64_ds __user *up64)
 {
-	if (!access_ok(VERIFY_READ, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	return __get_compat_ipc64_perm(&sem64->shm_perm, &up64->shm_perm);
 }
@@ -572,7 +572,7 @@ static inline int get_compat_shmid64_ds(struct shmid64_ds *sem64,
 static inline int get_compat_shmid_ds(struct shmid64_ds *s,
 				      struct compat_shmid_ds __user *up)
 {
-	if (!access_ok(VERIFY_READ, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	return __get_compat_ipc_perm(&s->shm_perm, &up->shm_perm);
 }
@@ -582,7 +582,7 @@ static inline int put_compat_shmid64_ds(struct shmid64_ds *sem64,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	err  = __put_compat_ipc64_perm(&sem64->shm_perm, &up64->shm_perm);
 	err |= __put_user(sem64->shm_atime, &up64->shm_atime);
@@ -600,7 +600,7 @@ static inline int put_compat_shmid_ds(struct shmid64_ds *s,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	err  = __put_compat_ipc_perm(&s->shm_perm, &up->shm_perm);
 	err |= __put_user(s->shm_atime, &up->shm_atime);
@@ -618,7 +618,7 @@ static inline int put_compat_shminfo64(struct shminfo64 *smi,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up64, sizeof(*up64)))
+	if (!access_ok(up64, sizeof(*up64)))
 		return -EFAULT;
 	if (smi->shmmax > INT_MAX)
 		smi->shmmax = INT_MAX;
@@ -635,7 +635,7 @@ static inline int put_compat_shminfo(struct shminfo64 *smi,
 {
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)))
+	if (!access_ok(up, sizeof(*up)))
 		return -EFAULT;
 	if (smi->shmmax > INT_MAX)
 		smi->shmmax = INT_MAX;
@@ -653,7 +653,7 @@ static inline int put_compat_shm_info(struct shm_info __user *ip,
 	int err;
 	struct shm_info si;
 
-	if (!access_ok(VERIFY_WRITE, uip, sizeof(*uip)) ||
+	if (!access_ok(uip, sizeof(*uip)) ||
 	    copy_from_user(&si, ip, sizeof(si)))
 		return -EFAULT;
 	err  = __put_user(si.used_ids, &uip->used_ids);

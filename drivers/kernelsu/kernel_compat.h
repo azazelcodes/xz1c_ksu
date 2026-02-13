@@ -54,7 +54,7 @@ extern void *ksu_compat_kvrealloc(const void *p, size_t oldsize, size_t newsize,
 #ifndef VERIFY_READ
 #define ksu_access_ok(addr, size) access_ok(addr, size)
 #else
-#define ksu_access_ok(addr, size) access_ok(VERIFY_READ, addr, size)
+#define ksu_access_ok(addr, size) access_ok(addr, size)
 #endif
 
 // Linux >= 5.7

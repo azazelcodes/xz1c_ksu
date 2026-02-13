@@ -1029,7 +1029,7 @@ SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, siz
 	if (sysctl_unprivileged_bpf_disabled && !capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
-	if (!access_ok(VERIFY_READ, uattr, 1))
+	if (!access_ok(uattr, 1))
 		return -EFAULT;
 
 	if (size > PAGE_SIZE)	/* silly large */

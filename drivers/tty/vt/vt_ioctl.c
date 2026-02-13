@@ -290,7 +290,7 @@ do_unimap_ioctl(int cmd, struct unimapdesc __user *user_ud, int perm, struct vc_
 	if (copy_from_user(&tmp, user_ud, sizeof tmp))
 		return -EFAULT;
 	if (tmp.entries)
-		if (!access_ok(VERIFY_WRITE, tmp.entries,
+		if (!access_ok(tmp.entries,
 				tmp.entry_ct*sizeof(struct unipair)))
 			return -EFAULT;
 	switch (cmd) {
@@ -1197,7 +1197,7 @@ compat_unimap_ioctl(unsigned int cmd, struct compat_unimapdesc __user *user_ud,
 		return -EFAULT;
 	tmp_entries = compat_ptr(tmp.entries);
 	if (tmp_entries)
-		if (!access_ok(VERIFY_WRITE, tmp_entries,
+		if (!access_ok(tmp_entries,
 				tmp.entry_ct*sizeof(struct unipair)))
 			return -EFAULT;
 	switch (cmd) {

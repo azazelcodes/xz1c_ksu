@@ -459,7 +459,7 @@ static long qcota_ioctl(struct file *file,
 
 	switch (cmd) {
 	case QCOTA_F9_REQ:
-		if (!access_ok(VERIFY_WRITE, (void __user *)arg,
+		if (!access_ok((void __user *)arg,
 			       sizeof(struct qce_f9_req)))
 			return -EFAULT;
 		if (__copy_from_user(&areq.req.f9_req, (void __user *)arg,
@@ -467,7 +467,7 @@ static long qcota_ioctl(struct file *file,
 			return -EFAULT;
 
 		user_src = areq.req.f9_req.message;
-		if (!access_ok(VERIFY_READ, (void __user *)user_src,
+		if (!access_ok((void __user *)user_src,
 			       areq.req.f9_req.msize))
 			return -EFAULT;
 
@@ -498,7 +498,7 @@ static long qcota_ioctl(struct file *file,
 		break;
 
 	case QCOTA_F8_REQ:
-		if (!access_ok(VERIFY_WRITE, (void __user *)arg,
+		if (!access_ok((void __user *)arg,
 			       sizeof(struct qce_f8_req)))
 			return -EFAULT;
 		if (__copy_from_user(&areq.req.f8_req, (void __user *)arg,
@@ -507,14 +507,14 @@ static long qcota_ioctl(struct file *file,
 		total = areq.req.f8_req.data_len;
 		user_src = areq.req.f8_req.data_in;
 		if (user_src != NULL) {
-			if (!access_ok(VERIFY_READ, (void __user *)
+			if (!access_ok((void __user *)
 					user_src, total))
 				return -EFAULT;
 
 		};
 
 		user_dst = areq.req.f8_req.data_out;
-		if (!access_ok(VERIFY_WRITE, (void __user *)
+		if (!access_ok((void __user *)
 				user_dst, total))
 			return -EFAULT;
 
@@ -549,7 +549,7 @@ static long qcota_ioctl(struct file *file,
 		break;
 
 	case QCOTA_F8_MPKT_REQ:
-		if (!access_ok(VERIFY_WRITE, (void __user *)arg,
+		if (!access_ok((void __user *)arg,
 			       sizeof(struct qce_f8_multi_pkt_req)))
 			return -EFAULT;
 		if (__copy_from_user(&areq.req.f8_mp_req, (void __user *)arg,
@@ -563,12 +563,12 @@ static long qcota_ioctl(struct file *file,
 				areq.req.f8_mp_req.qce_f8_req.data_len;
 
 		user_src = areq.req.f8_mp_req.qce_f8_req.data_in;
-		if (!access_ok(VERIFY_READ, (void __user *)
+		if (!access_ok((void __user *)
 				user_src, total))
 			return -EFAULT;
 
 		user_dst = areq.req.f8_mp_req.qce_f8_req.data_out;
-		if (!access_ok(VERIFY_WRITE, (void __user *)
+		if (!access_ok((void __user *)
 				user_dst, total))
 			return -EFAULT;
 
@@ -598,7 +598,7 @@ static long qcota_ioctl(struct file *file,
 		break;
 
 	case QCOTA_F8_V_MPKT_REQ:
-		if (!access_ok(VERIFY_WRITE, (void __user *)arg,
+		if (!access_ok((void __user *)arg,
 				sizeof(struct qce_f8_varible_multi_pkt_req)))
 			return -EFAULT;
 		if (__copy_from_user(&areq.req.f8_v_mp_req, (void __user *)arg,
@@ -609,7 +609,7 @@ static long qcota_ioctl(struct file *file,
 			return -EINVAL;
 
 		for (i = 0, total = 0; i < areq.req.f8_v_mp_req.num_pkt; i++) {
-			if (!access_ok(VERIFY_WRITE, (void __user *)
+			if (!access_ok((void __user *)
 				areq.req.f8_v_mp_req.cipher_iov[i].addr,
 				areq.req.f8_v_mp_req.cipher_iov[i].size))
 				return -EFAULT;

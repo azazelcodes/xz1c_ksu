@@ -24,8 +24,6 @@
 #include <asm/processor.h>
 #include <asm/page.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -97,7 +95,7 @@ int __range_ok(unsigned long addr, unsigned long size);
  * checks that the pointer is in the user space range - after calling
  * this function, memory access functions may still return -EFAULT.
  */
-#define access_ok(type, addr, size) ({ \
+#define access_ok(addr, size) ({ \
 	__chk_user_ptr(addr); \
 	likely(__range_ok((unsigned long)(addr), (size)) == 0);	\
 })
@@ -321,7 +319,7 @@ extern int __put_user_bad(void)
 #define put_user(x, ptr)						\
 ({									\
 	__typeof__(*(ptr)) __user *__Pu_addr = (ptr);			\
-	access_ok(VERIFY_WRITE, (__Pu_addr), sizeof(*(__Pu_addr))) ?	\
+	access_ok((__Pu_addr), sizeof(*(__Pu_addr))) ?	\
 		__put_user((x), (__Pu_addr)) :				\
 		-EFAULT;						\
 })
@@ -329,7 +327,7 @@ extern int __put_user_bad(void)
 #define get_user(x, ptr)						\
 ({									\
 	__typeof__(*(ptr)) const __user *__Gu_addr = (ptr);		\
-	access_ok(VERIFY_READ, (__Gu_addr), sizeof(*(__Gu_addr))) ?	\
+	access_ok((__Gu_addr), sizeof(*(__Gu_addr))) ?	\
 		__get_user((x), (__Gu_addr)) :				\
 		((x) = 0, -EFAULT);					\
 })
@@ -366,7 +364,7 @@ __copy_to_user(void __user *to, const void *from, unsigned long n)
 static inline unsigned long __must_check
 copy_to_user(void __user *to, const void *from, unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		n = __copy_to_user(to, from, n);
 	return n;
 }
@@ -409,7 +407,7 @@ __copy_from_user(void *to, const void __user *from, unsigned long n)
 static inline unsigned long __must_check
 _copy_from_user(void *to, const void __user *from, unsigned long n)
 {
-	if (access_ok(VERIFY_READ, from, n))
+	if (access_ok(from, n))
 		n = __copy_from_user(to, from, n);
 	else
 		memset(to, 0, n);
@@ -471,7 +469,7 @@ __copy_in_user(void __user *to, const void __user *from, unsigned long n)
 static inline unsigned long __must_check
 copy_in_user(void __user *to, const void __user *from, unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n) && access_ok(VERIFY_READ, from, n))
+	if (access_ok(to, n) && access_ok(from, n))
 		n = __copy_in_user(to, from, n);
 	return n;
 }
@@ -502,7 +500,7 @@ static inline unsigned long __must_check __clear_user(
 static inline unsigned long __must_check clear_user(
 	void __user *mem, unsigned long len)
 {
-	if (access_ok(VERIFY_WRITE, mem, len))
+	if (access_ok(mem, len))
 		return __clear_user(mem, len);
 	return len;
 }
@@ -530,7 +528,7 @@ static inline unsigned long __must_check __flush_user(
 static inline unsigned long __must_check flush_user(
 	void __user *mem, unsigned long len)
 {
-	if (access_ok(VERIFY_WRITE, mem, len))
+	if (access_ok(mem, len))
 		return __flush_user(mem, len);
 	return len;
 }
@@ -557,7 +555,7 @@ static inline unsigned long __must_check __finv_user(
 static inline unsigned long __must_check finv_user(
 	void __user *mem, unsigned long len)
 {
-	if (access_ok(VERIFY_WRITE, mem, len))
+	if (access_ok(mem, len))
 		return __finv_user(mem, len);
 	return len;
 }

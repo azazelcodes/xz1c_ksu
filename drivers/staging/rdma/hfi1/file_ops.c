@@ -1590,7 +1590,7 @@ static int exp_tid_setup(struct file *fp, struct hfi1_tid_info *tinfo)
 		ret = -EINVAL;
 		goto bail;
 	}
-	if (!access_ok(VERIFY_WRITE, (void __user *)vaddr,
+	if (!access_ok((void __user *)vaddr,
 		       npages * PAGE_SIZE)) {
 		dd_dev_err(dd, "Fail vaddr %p, %u pages, !access_ok\n",
 			   (void *)vaddr, npages);

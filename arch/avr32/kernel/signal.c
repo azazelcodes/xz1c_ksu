@@ -74,7 +74,7 @@ asmlinkage int sys_rt_sigreturn(struct pt_regs *regs)
 	frame = (struct rt_sigframe __user *)regs->sp;
 	pr_debug("SIG return: frame = %p\n", frame);
 
-	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+	if (!access_ok(frame, sizeof(*frame)))
 		goto badframe;
 
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
@@ -142,7 +142,7 @@ setup_rt_frame(struct ksignal *ksig, sigset_t *set, struct pt_regs *regs)
 
 	frame = get_sigframe(ksig, regs, sizeof(*frame));
 	err = -EFAULT;
-	if (!access_ok(VERIFY_WRITE, frame, sizeof (*frame)))
+	if (!access_ok(frame, sizeof (*frame)))
 		goto out;
 
 	/*

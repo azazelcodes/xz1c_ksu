@@ -1262,7 +1262,7 @@ static int lpfc_idiag_cmd_get(const char __user *buf, size_t nbytes,
 	size_t bsize;
 
 	/* Protect copy from user */
-	if (!access_ok(VERIFY_READ, buf, nbytes))
+	if (!access_ok(buf, nbytes))
 		return -EFAULT;
 
 	memset(mybuf, 0, sizeof(mybuf));

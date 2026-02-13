@@ -1304,7 +1304,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 			if (arg) {
 				ulong __user *p = argp;
 				int i;
-				if (!access_ok(VERIFY_WRITE, p,
+				if (!access_ok(p,
 					       sizeof(ulong) * ISDN_MAX_CHANNELS * 2))
 					return -EFAULT;
 				for (i = 0; i < ISDN_MAX_CHANNELS; i++) {
@@ -1541,7 +1541,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 				char __user *p = argp;
 				int i;
 
-				if (!access_ok(VERIFY_WRITE, argp,
+				if (!access_ok(argp,
 					       (ISDN_MODEM_NUMREG + ISDN_MSNLEN + ISDN_LMSNLEN)
 					       * ISDN_MAX_CHANNELS))
 					return -EFAULT;
@@ -1568,7 +1568,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 				char __user *p = argp;
 				int i;
 
-				if (!access_ok(VERIFY_READ, argp,
+				if (!access_ok(argp,
 					       (ISDN_MODEM_NUMREG + ISDN_MSNLEN + ISDN_LMSNLEN)
 					       * ISDN_MAX_CHANNELS))
 					return -EFAULT;
@@ -1618,7 +1618,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 						int j = 0;
 
 						while (1) {
-							if (!access_ok(VERIFY_READ, p, 1))
+							if (!access_ok(p, 1))
 								return -EFAULT;
 							get_user(bname[j], p++);
 							switch (bname[j]) {
@@ -1680,7 +1680,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 					drvidx = 0;
 				if (drvidx == -1)
 					return -ENODEV;
-				if (!access_ok(VERIFY_WRITE, argp,
+				if (!access_ok(argp,
 					       sizeof(isdn_ioctl_struct)))
 					return -EFAULT;
 				c.driver = drvidx;

@@ -280,7 +280,7 @@ copy_siginfo_from_user32 (siginfo_t *to, compat_siginfo_t __user *from)
 	compat_uptr_t addr;
 	int err;
 
-	if (!access_ok(VERIFY_READ, from, sizeof(compat_siginfo_t)))
+	if (!access_ok(from, sizeof(compat_siginfo_t)))
 		return -EFAULT;
 
 	err = __get_user(to->si_signo, &from->si_signo);
@@ -325,7 +325,7 @@ copy_siginfo_to_user32 (compat_siginfo_t __user *to, const siginfo_t *from)
 	compat_int_t val;
 	int err;
 
-	if (!access_ok(VERIFY_WRITE, to, sizeof(compat_siginfo_t)))
+	if (!access_ok(to, sizeof(compat_siginfo_t)))
 		return -EFAULT;
 
 	/* If you change siginfo_t structure, please be sure

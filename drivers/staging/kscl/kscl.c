@@ -419,8 +419,8 @@ static long file_ioctl(struct file *filp,
 		return -EINVAL; /* wrong command. */
 
 	/* Verify read-write access to entire area */
-	if (!access_ok(VERIFY_WRITE, userp, iosize) ||
-	    !access_ok(VERIFY_READ, userp, iosize))
+	if (!access_ok(userp, iosize) ||
+	    !access_ok(userp, iosize))
 		return -EFAULT;
 
 	pr_debug("IOCTL Request: valid\n");

@@ -576,9 +576,9 @@ EXPORT_SYMBOL(dma_memcpy_nocache);
  */
 void *safe_dma_memcpy(void *dst, const void *src, size_t size)
 {
-	if (!access_ok(VERIFY_WRITE, dst, size))
+	if (!access_ok(dst, size))
 		return NULL;
-	if (!access_ok(VERIFY_READ, src, size))
+	if (!access_ok(src, size))
 		return NULL;
 	return dma_memcpy(dst, src, size);
 }

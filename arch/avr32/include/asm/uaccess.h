@@ -11,8 +11,6 @@
 #include <linux/errno.h>
 #include <linux/sched.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 typedef struct {
 	unsigned int is_user_space;
@@ -66,7 +64,7 @@ static inline void set_fs(mm_segment_t s)
 	     || ((unsigned long)(size) > 0x80000000)			\
 	     || (((unsigned long)(addr) + (unsigned long)(size)) > 0x80000000)))
 
-#define access_ok(type, addr, size) (likely(__range_ok(addr, size) == 0))
+#define access_ok(addr, size) (likely(__range_ok(addr, size) == 0))
 
 /* Generic arbitrary sized copy. Return the number of bytes NOT copied */
 extern __kernel_size_t __copy_user(void *to, const void *from,
@@ -214,7 +212,7 @@ extern int __put_user_bad(void);
 	const typeof(*(ptr)) __user * __gu_addr = (ptr);		\
 	int __gu_err = 0;						\
 									\
-	if (access_ok(VERIFY_READ, __gu_addr, size)) {			\
+	if (access_ok(__gu_addr, size)) {			\
 		switch (size) {						\
 		case 1:							\
 			__get_user_asm("ub", __gu_val, __gu_addr,	\
@@ -276,7 +274,7 @@ extern int __put_user_bad(void);
 	int __pu_err = 0;						\
 									\
 	__pu_val = (x);							\
-	if (access_ok(VERIFY_WRITE, __pu_addr, size)) {			\
+	if (access_ok(__pu_addr, size)) {			\
 		switch (size) {						\
 		case 1:							\
 			__put_user_asm("b", __pu_addr, __pu_val,	\

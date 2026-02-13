@@ -280,7 +280,7 @@ static ssize_t gpio_write(struct file *file, const char __user *buf,
 	if (priv->minor != GPIO_MINOR_A && priv->minor != GPIO_MINOR_B)
 		return -EFAULT;
 
-	if (!access_ok(VERIFY_READ, buf, count))
+	if (!access_ok(buf, count))
 		return -EFAULT;
 
 	spin_lock_irqsave(&gpio_lock, flags);

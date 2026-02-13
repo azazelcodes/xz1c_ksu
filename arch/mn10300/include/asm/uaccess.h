@@ -19,8 +19,6 @@
 #include <asm/page.h>
 #include <asm/errno.h>
 
-#define VERIFY_READ 0
-#define VERIFY_WRITE 1
 
 /*
  * The fs value determines whether argument validity checking should be
@@ -69,12 +67,12 @@ static inline int ___range_ok(unsigned long addr, unsigned int size)
 
 #define __range_ok(addr, size) ___range_ok((unsigned long)(addr), (u32)(size))
 
-#define access_ok(type, addr, size) (__range_ok((addr), (size)) == 0)
+#define access_ok(addr, size) (__range_ok((addr), (size)) == 0)
 #define __access_ok(addr, size)     (__range_ok((addr), (size)) == 0)
 
 static inline int verify_area(int type, const void *addr, unsigned long size)
 {
-	return access_ok(type, addr, size) ? 0 : -EFAULT;
+	return access_ok(addr, size) ? 0 : -EFAULT;
 }
 
 
@@ -429,7 +427,7 @@ static inline
 unsigned long __constant_copy_to_user(void *to, const void *from,
 				      unsigned long n)
 {
-	if (access_ok(VERIFY_WRITE, to, n))
+	if (access_ok(to, n))
 		__constant_copy_user(to, from, n);
 	return n;
 }
@@ -438,7 +436,7 @@ static inline
 unsigned long __constant_copy_from_user(void *to, const void *from,
 					unsigned long n)
 {
-	if (access_ok(VERIFY_READ, from, n))
+	if (access_ok(from, n))
 		__constant_copy_user_zeroing(to, from, n);
 	return n;
 }

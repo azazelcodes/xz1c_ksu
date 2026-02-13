@@ -150,7 +150,7 @@ int ptrace_getfpregs(struct task_struct *child, __u32 __user *data)
 {
 	int i;
 
-	if (!access_ok(VERIFY_WRITE, data, 33 * 8))
+	if (!access_ok(data, 33 * 8))
 		return -EIO;
 
 	if (tsk_used_math(child)) {
@@ -176,7 +176,7 @@ int ptrace_setfpregs(struct task_struct *child, __u32 __user *data)
 	u32 value;
 	int i;
 
-	if (!access_ok(VERIFY_READ, data, 33 * 8))
+	if (!access_ok(data, 33 * 8))
 		return -EIO;
 
 	init_fp_ctx(child);

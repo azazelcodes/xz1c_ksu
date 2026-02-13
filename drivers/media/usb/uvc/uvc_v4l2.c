@@ -1303,7 +1303,7 @@ static int uvc_v4l2_get_xu_mapping(struct uvc_xu_control_mapping *kp,
 	struct uvc_menu_info __user *kmenus;
 	compat_caddr_t p;
 
-	if (!access_ok(VERIFY_READ, up, sizeof(*up)) ||
+	if (!access_ok(up, sizeof(*up)) ||
 	    __copy_from_user(kp, up, offsetof(typeof(*up), menu_info)) ||
 	    __get_user(kp->menu_count, &up->menu_count))
 		return -EFAULT;
@@ -1318,7 +1318,7 @@ static int uvc_v4l2_get_xu_mapping(struct uvc_xu_control_mapping *kp,
 	if (__get_user(p, &up->menu_info))
 		return -EFAULT;
 	umenus = compat_ptr(p);
-	if (!access_ok(VERIFY_READ, umenus, kp->menu_count * sizeof(*umenus)))
+	if (!access_ok(umenus, kp->menu_count * sizeof(*umenus)))
 		return -EFAULT;
 
 	kmenus = compat_alloc_user_space(kp->menu_count * sizeof(*kmenus));
@@ -1339,7 +1339,7 @@ static int uvc_v4l2_put_xu_mapping(const struct uvc_xu_control_mapping *kp,
 	struct uvc_menu_info __user *kmenus = kp->menu_info;
 	compat_caddr_t p;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)) ||
+	if (!access_ok(up, sizeof(*up)) ||
 	    __copy_to_user(up, kp, offsetof(typeof(*up), menu_info)) ||
 	    __put_user(kp->menu_count, &up->menu_count))
 		return -EFAULT;
@@ -1375,7 +1375,7 @@ static int uvc_v4l2_get_xu_query(struct uvc_xu_control_query *kp,
 	u8 __user *kdata;
 	compat_caddr_t p;
 
-	if (!access_ok(VERIFY_READ, up, sizeof(*up)) ||
+	if (!access_ok(up, sizeof(*up)) ||
 	    __copy_from_user(kp, up, offsetof(typeof(*up), data)))
 		return -EFAULT;
 
@@ -1387,7 +1387,7 @@ static int uvc_v4l2_get_xu_query(struct uvc_xu_control_query *kp,
 	if (__get_user(p, &up->data))
 		return -EFAULT;
 	udata = compat_ptr(p);
-	if (!access_ok(VERIFY_READ, udata, kp->size))
+	if (!access_ok(udata, kp->size))
 		return -EFAULT;
 
 	kdata = compat_alloc_user_space(kp->size);
@@ -1408,7 +1408,7 @@ static int uvc_v4l2_put_xu_query(const struct uvc_xu_control_query *kp,
 	u8 __user *kdata = kp->data;
 	compat_caddr_t p;
 
-	if (!access_ok(VERIFY_WRITE, up, sizeof(*up)) ||
+	if (!access_ok(up, sizeof(*up)) ||
 	    __copy_to_user(up, kp, offsetof(typeof(*up), data)))
 		return -EFAULT;
 
@@ -1418,7 +1418,7 @@ static int uvc_v4l2_put_xu_query(const struct uvc_xu_control_query *kp,
 	if (get_user(p, &up->data))
 		return -EFAULT;
 	udata = compat_ptr(p);
-	if (!access_ok(VERIFY_READ, udata, kp->size))
+	if (!access_ok(udata, kp->size))
 		return -EFAULT;
 
 	if (copy_in_user(udata, kdata, kp->size))

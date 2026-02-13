@@ -361,7 +361,7 @@ static int ipath_tid_update(struct ipath_portdata *pd, struct file *fp,
 
 	/* virtual address of first page in transfer */
 	vaddr = ti->tidvaddr;
-	if (!access_ok(VERIFY_WRITE, (void __user *) vaddr,
+	if (!access_ok((void __user *) vaddr,
 		       cnt * PAGE_SIZE)) {
 		ipath_dbg("Fail vaddr %p, %u pages, !access_ok\n",
 			  (void *)vaddr, cnt);

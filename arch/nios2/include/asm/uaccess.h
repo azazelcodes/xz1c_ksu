@@ -19,8 +19,6 @@
 
 #include <asm/page.h>
 
-#define VERIFY_READ	0
-#define VERIFY_WRITE	1
 
 /*
  * The exception table consists of pairs of addresses: the first is the
@@ -103,7 +101,7 @@ static inline long copy_from_user(void *to, const void __user *from,
 				unsigned long n)
 {
 	unsigned long res = n;
-	if (access_ok(VERIFY_READ, from, n))
+	if (access_ok(from, n))
 		res = __copy_from_user(to, from, n);
 	if (unlikely(res))
 		memset(to + (n - res), 0, res);
@@ -113,7 +111,7 @@ static inline long copy_from_user(void *to, const void __user *from,
 static inline long copy_to_user(void __user *to, const void *from,
 				unsigned long n)
 {
-	if (!access_ok(VERIFY_WRITE, to, n))
+	if (!access_ok(to, n))
 		return n;
 	return __copy_to_user(to, from, n);
 }

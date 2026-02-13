@@ -616,7 +616,7 @@ static int serial_struct_ioctl(unsigned fd, unsigned cmd,
 	unsigned int base;
 
         if (cmd == TIOCSSERIAL) {
-                if (!access_ok(VERIFY_READ, ss32, sizeof(SS32)))
+                if (!access_ok(ss32, sizeof(SS32)))
                         return -EFAULT;
                 if (__copy_from_user(&ss, ss32, offsetof(SS32, iomem_base)))
 			return -EFAULT;
@@ -632,7 +632,7 @@ static int serial_struct_ioctl(unsigned fd, unsigned cmd,
                 err = sys_ioctl(fd,cmd,(unsigned long)(&ss));
         set_fs(oldseg);
         if (cmd == TIOCGSERIAL && err >= 0) {
-                if (!access_ok(VERIFY_WRITE, ss32, sizeof(SS32)))
+                if (!access_ok(ss32, sizeof(SS32)))
                         return -EFAULT;
                 if (__copy_to_user(ss32,&ss,offsetof(SS32,iomem_base)))
 			return -EFAULT;
@@ -720,10 +720,10 @@ static int do_i2c_smbus_ioctl(unsigned int fd, unsigned int cmd,
 	tdata = compat_alloc_user_space(sizeof(*tdata));
 	if (tdata == NULL)
 		return -ENOMEM;
-	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
+	if (!access_ok(tdata, sizeof(*tdata)))
 		return -EFAULT;
 
-	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
+	if (!access_ok(udata, sizeof(*udata)))
 		return -EFAULT;
 
 	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
