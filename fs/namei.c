@@ -1393,7 +1393,7 @@ static int follow_managed(struct path *path, struct nameidata *nd)
 
 	if (need_mntput && path->mnt == mnt)
 		mntput(path->mnt);
-	if (ret == -EISDIR || !re)
+	if (ret == -EISDIR || !ret)
 		ret = 1;
 	if (need_mntput)
 		nd->flags |= LOOKUP_JUMPED;
