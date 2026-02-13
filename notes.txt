@@ -6,6 +6,8 @@ assume dentry *lookup_one_qstr_excl was dentry *__lookup_hash
 lookup_fast needs fundamental changes with returning and all that
 [20e343571cefe31b3dba3e61c9b057781fbce40a]
 
+NEED lookup_slow lookup_open
+
 
 (maybe impl??)
 NAMESPACE.C
