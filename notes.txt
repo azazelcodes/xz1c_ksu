@@ -6,7 +6,12 @@ assume dentry *lookup_one_qstr_excl was dentry *__lookup_hash
 lookup_fast needs fundamental changes with returning and all that
 [20e343571cefe31b3dba3e61c9b057781fbce40a]
 
-NEED lookup_slow lookup_open
+lookup_slow might require
+85c7f81041d57cfe9dc97f4680d5586b54534a39 -> 84e710da2a1dfacfc87f604869a4d22df91ce6cd -> 94bdd655caba2080ae81d83d756d325abdffcb9f -> d9171b9345261e0d941d92fdda5672b5db67f968 (parallel lookups machinery saga)
+and e3c13928086f1ed3620329b9fff678df2294d327
+
+lookup_open maybe
+ce8644fcadc52da72e19ae9f0866fb3eb15d3df4 -> 1643b43fbd0524e7da7259075032936c8fb68a05 -> 6fbd07146d99239547cd4970622c96e9cb0f3213
 
 
 (maybe impl??)
