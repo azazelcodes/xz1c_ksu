@@ -393,6 +393,7 @@ static unsigned int __kprobes aarch32_check_condition(u32 opcode, u32 psr)
 static int swp_handler(struct pt_regs *regs, u32 instr)
 {
 	u32 destreg, data, type, address = 0;
+	const void __user *user_ptr;
 	int rn, rt2, res = 0;
 
 	perf_sw_event(PERF_COUNT_SW_EMULATION_FAULTS, 1, regs, regs->pc);
