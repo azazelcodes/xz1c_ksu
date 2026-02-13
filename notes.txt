@@ -36,3 +36,8 @@ now it fix
 
 
 these might be easier to manually implement with the https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/Patch/susfs_patch_to_4.9.patch
+
+
+
+fixes:
+include/linux/fs.h might need 81754357770ebd900801231e7bc8d151ddc00498
