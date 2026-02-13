@@ -26,5 +26,4 @@ now it fix
 
 
 
-these might be easier to manually implement with the https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/susfs_inline_hook_patches.sh and the following https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/Patch/susfs_patch_to_4.9.patch
-as can be seen in .github/workflows/patch-no-kprobe
+these might be easier to manually implement with the https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/mainline/Patches/Patch/susfs_patch_to_4.9.patch
