@@ -896,6 +896,7 @@ COMPAT_SYSCALL_DEFINE3(getdents64, unsigned int, fd,
 		struct linux_dirent64 __user *, dirent, unsigned int, count)
 {
 	struct fd f;
+	struct linux_dirent64 __user * lastdirent;
 	struct compat_getdents_callback64 buf = {
 		.ctx.actor = compat_filldir64,
 		.current_dir = dirent,
@@ -913,11 +914,9 @@ COMPAT_SYSCALL_DEFINE3(getdents64, unsigned int, fd,
 	error = iterate_dir(f.file, &buf.ctx);
 	if (error >= 0)
 		error = buf.error;
-	if (buf.prev_reclen) {
-		struct linux_dirent64 __user * lastdirent;
+	lastdirent = buf.previous;
+	if (lastdirent) {
 		typeof(lastdirent->d_off) d_off = buf.ctx.pos;
-
-		lastdirent = (void __user *) buf.current_dir - buf.prev_reclen;
 		if (__put_user_unaligned(d_off, &lastdirent->d_off))
 			error = -EFAULT;
 		else
