@@ -412,6 +412,12 @@ static inline void fsnotify_clear_inode_marks_by_group(struct fsnotify_group *gr
 {
 	fsnotify_clear_marks_by_group(group, FSNOTIFY_OBJ_TYPE_INODE_FL);
 }
+extern void fsnotify_clear_inode_marks_by_group(struct fsnotify_group *group);
+/* run all the marks in a group, and clear all of the marks attached to given object type */
+extern void fsnotify_clear_marks_by_group_flags(struct fsnotify_group *group, unsigned int flags);
+/* run all the marks in a group, and flag them to be freed */
+extern void fsnotify_clear_marks_by_group(struct fsnotify_group *group);
+extern void fsnotify_connector_free(struct fsnotify_mark_connector **connp);
 extern void fsnotify_get_mark(struct fsnotify_mark *mark);
 extern void fsnotify_put_mark(struct fsnotify_mark *mark);
 extern void fsnotify_unmount_inodes(struct super_block *sb);
