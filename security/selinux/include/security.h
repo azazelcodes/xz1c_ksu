@@ -164,9 +164,6 @@ int security_sid_to_context(u32 sid, char **scontext,
 
 int security_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len);
 
-int security_sid_to_context_inval(struct selinux_state *state,
-				  u32 sid, char **scontext, u32 *scontext_len);
-
 int security_context_to_sid(const char *scontext, u32 scontext_len,
 			    u32 *out_sid, gfp_t gfp);
 

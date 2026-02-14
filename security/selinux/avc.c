@@ -732,27 +732,6 @@ bypass_orig_flow:
 	trace_selinux_audited(sad, scontext, tcontext, tclass);
 	kfree(tcontext);
 	kfree(scontext);
-
-	/* in case of invalid context report also the actual context string */
-	rc = security_sid_to_context_inval(sad->ssid, &scontext,
-					   &scontext_len);
-	if (!rc && scontext) {
-		if (scontext_len && scontext[scontext_len - 1] == '\0')
-			scontext_len--;
-		audit_log_format(ab, " srawcon=");
-		audit_log_n_untrustedstring(ab, scontext, scontext_len);
-		kfree(scontext);
-	}
-
-	rc = security_sid_to_context_inval(sad->tsid, &scontext,
-					   &scontext_len);
-	if (!rc && scontext) {
-		if (scontext_len && scontext[scontext_len - 1] == '\0')
-			scontext_len--;
-		audit_log_format(ab, " trawcon=");
-		audit_log_n_untrustedstring(ab, scontext, scontext_len);
-		kfree(scontext);
-	}
 }
 
 /* This is the slow part of avc audit with big stack footprint */
