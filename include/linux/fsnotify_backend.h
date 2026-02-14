@@ -93,9 +93,7 @@ struct fsnotify_fname;
  */
 struct fsnotify_ops {
 	int (*handle_event)(struct fsnotify_group *group,
-			    struct inode *inode,
-			    struct fsnotify_mark *inode_mark,
-			    struct fsnotify_mark *vfsmount_mark,
+			    struct inode *inode,	
 			    u32 mask, void *data, int data_type,
 			    const unsigned char *file_name, u32 cookie);
 	void (*free_group_priv)(struct fsnotify_group *group);
@@ -193,6 +191,24 @@ struct fsnotify_group {
 #define FSNOTIFY_EVENT_NONE	0
 #define FSNOTIFY_EVENT_PATH	1
 #define FSNOTIFY_EVENT_INODE	2
+
+struct fsnotify_iter_info {
+	struct fsnotify_mark *inode_mark;
+	struct fsnotify_mark *vfsmount_mark;
+	unsigned int report_mask;
+	int srcu_idx;
+};
+
+#define FSNOTIFY_ITER_FUNCS(name, NAME) \
+static inline struct fsnotify_mark *fsnotify_iter_##name##_mark( \
+		struct fsnotify_iter_info *iter_info) \
+{ \
+	return (iter_info->report_mask & FSNOTIFY_OBJ_TYPE_##NAME##_FL) ? \
+		iter_info->name##_mark : NULL; \
+}
+
+FSNOTIFY_ITER_FUNCS(inode, INODE)
+FSNOTIFY_ITER_FUNCS(vfsmount, VFSMOUNT)
 
 /*
  * A mark is simply an object attached to an in core inode which allows an

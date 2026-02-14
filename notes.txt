@@ -43,3 +43,8 @@ fixes:
 include/linux/fs.h might need 81754357770ebd900801231e7bc8d151ddc00498
 96d4f267e40f9509e8a66e2b39e8b95655617693 very sketch merges, implemented with custom be21ea5a09f040304f03387493cab25d0031527d
 maybe add some more uses of __GFP_ACCOUNT?? Idrk
+
+breaking changes for handle_inode_event are mainly b9a1b9772509cbc6f6aa8bcd0b019f6347a2b631 and maybe the following
+950cc0d2bef078e1f6459900ca4d4b2a2e0e3c37->1a2620a99803ad660edc5d22fd9c66cce91ceb1c->24dca90590509a7a6cbe0650100c90c5b8a3468a->e54183fa7047c15819bc155f4c58501d9a9a3489->c915d8f5918bea7c3962b09b8884ca128bfd9b0c
+which might rely on 62cb0af4cea871e80015dd45b200033002f23a95 and its reverting b54cecf5e2293d15620f7b3f8d1bf486243d5643 where Im now missing fsnotify_mark
+these are removed in 5b0457ad021f3f7e3d9f4b84e7c3080748f383f8
