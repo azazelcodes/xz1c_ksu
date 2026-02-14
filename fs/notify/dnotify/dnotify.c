@@ -84,7 +84,8 @@ static void dnotify_recalc_inode_mask(struct fsnotify_mark *fsn_mark)
 static int dnotify_handle_event(struct fsnotify_group *group,
 				struct inode *inode,
 				u32 mask, void *data, int data_type,
-				const unsigned char *file_name, u32 cookie)
+				const unsigned char *file_name, u32 cookie,
+				struct fsnotify_iter_info *iter_info)
 {
 	struct fsnotify_mark *inode_mark = fsnotify_iter_inode_mark(iter_info);
 	struct dnotify_mark *dn_mark;
