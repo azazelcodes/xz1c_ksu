@@ -700,15 +700,13 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 	u32 tcontext_len;
 	int rc;
 
-	rc = security_sid_to_context(sad->state, sad->ssid, &scontext,
-				     &scontext_len);
+	rc = security_sid_to_context(sad->ssid, &scontext, &scontext_len);
 	if (rc)
 		audit_log_format(ab, " ssid=%d", sad->ssid);
 	else
 		audit_log_format(ab, " scontext=%s", scontext);
 
-	rc = security_sid_to_context(sad->state, sad->tsid, &tcontext,
-				     &tcontext_len);
+	rc = security_sid_to_context(sad->tsid, &tcontext, &tcontext_len);
 #ifdef CONFIG_KSU_SUSFS
 	if (unlikely(sad->tsid == susfs_ksu_sid && susfs_is_avc_log_spoofing_enabled)) {
 		if (rc)
