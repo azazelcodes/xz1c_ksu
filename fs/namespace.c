@@ -174,7 +174,7 @@ static int mnt_alloc_group_id(struct mount *mnt)
 					susfs_mnt_group_start,
 					&mnt->mnt_group_id);
 		if (!res)
-			susfs_mnt_group_start = mnt->mnt_group_id  1;
+			susfs_mnt_group_start = mnt->mnt_group_id + 1;
 		return res;
 	}
 #endif

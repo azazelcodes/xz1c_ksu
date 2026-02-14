@@ -734,7 +734,7 @@ bypass_orig_flow:
 	kfree(scontext);
 
 	/* in case of invalid context report also the actual context string */
-	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
+	rc = security_sid_to_context_inval(sad->ssid, &scontext,
 					   &scontext_len);
 	if (!rc && scontext) {
 		if (scontext_len && scontext[scontext_len - 1] == '\0')
@@ -744,7 +744,7 @@ bypass_orig_flow:
 		kfree(scontext);
 	}
 
-	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
+	rc = security_sid_to_context_inval(sad->tsid, &scontext,
 					   &scontext_len);
 	if (!rc && scontext) {
 		if (scontext_len && scontext[scontext_len - 1] == '\0')
