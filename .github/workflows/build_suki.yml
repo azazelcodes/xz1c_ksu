@@ -17,7 +17,7 @@ jobs:
       - name: Checkout zipper
         uses: actions/checkout@v5.0.0
         with:
-          repository: lemniskett/AnyKernel3
+          repository: azazelcodes/xz1c_AnyKernel3
           path: zipper
 
       - name: Android kernel build
