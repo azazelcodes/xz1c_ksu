@@ -1775,9 +1775,9 @@ static struct dentry *lookup_slow(const struct qstr *name,
 				  unsigned int flags)
 {
 	struct dentry *dentry;
-	mutex_lock(&parent->d_inode->i_mutex);
+	mutex_lock(&dir->d_inode->i_mutex);
 	dentry = __lookup_hash(name, dir, flags);
-	mutex_unlock(&parent->d_inode->i_mutex);
+	mutex_unlock(&dir->d_inode->i_mutex);
 	return dentry;
 }
 
