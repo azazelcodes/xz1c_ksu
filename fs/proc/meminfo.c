@@ -84,13 +84,13 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "SwapTotal:      ", i.totalswap);
 	show_val_kb(m, "SwapFree:       ", i.freeswap);
 	show_val_kb(m, "Dirty:          ",
-		    global_node_page_state(NR_FILE_DIRTY));
+		    global_page_state(NR_FILE_DIRTY));
 	show_val_kb(m, "Writeback:      ",
-		    global_node_page_state(NR_WRITEBACK));
+		    global_page_state(NR_WRITEBACK));
 	show_val_kb(m, "AnonPages:      ",
-		    global_node_page_state(NR_ANON_MAPPED));
+		    global_page_state(NR_ANON_PAGES));
 	show_val_kb(m, "Mapped:         ",
-		    global_node_page_state(NR_FILE_MAPPED));
+		    global_page_state(NR_FILE_MAPPED));
 	show_val_kb(m, "Shmem:          ", i.sharedram);
 	show_val_kb(m, "Slab:           ",
 		    global_page_state(NR_SLAB_RECLAIMABLE) +
@@ -101,7 +101,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "SUnreclaim:     ",
 		    global_page_state(NR_SLAB_UNRECLAIMABLE));
 	seq_printf(m, "KernelStack:    %8lu kB\n",
-		   global_page_state(NR_KERNEL_STACK_KB));
+		   global_page_state(NR_KERNEL_STACK) * THREAD_SIZE / 1024);
 	show_val_kb(m, "PageTables:     ",
 		    global_page_state(NR_PAGETABLE));
 #ifdef CONFIG_QUICKLIST
@@ -109,11 +109,11 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 #endif
 
 	show_val_kb(m, "NFS_Unstable:   ",
-		    global_node_page_state(NR_UNSTABLE_NFS));
+		    global_page_state(NR_UNSTABLE_NFS));
 	show_val_kb(m, "Bounce:         ",
 		    global_page_state(NR_BOUNCE));
 	show_val_kb(m, "WritebackTmp:   ",
-		    global_node_page_state(NR_WRITEBACK_TEMP));
+		    global_page_state(NR_WRITEBACK_TEMP));
 	show_val_kb(m, "CommitLimit:    ", vm_commit_limit());
 	show_val_kb(m, "Committed_AS:   ", committed);
 	seq_printf(m, "VmallocTotal:   %8lu kB\n",
@@ -128,11 +128,11 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 	show_val_kb(m, "AnonHugePages:  ",
-		    global_node_page_state(NR_ANON_THPS) * HPAGE_PMD_NR);
+		    global_page_state(NR_ANON_THPS) * HPAGE_PMD_NR);
 	show_val_kb(m, "ShmemHugePages: ",
-		    global_node_page_state(NR_SHMEM_THPS) * HPAGE_PMD_NR);
+		    global_page_state(NR_SHMEM_THPS) * HPAGE_PMD_NR);
 	show_val_kb(m, "ShmemPmdMapped: ",
-		    global_node_page_state(NR_SHMEM_PMDMAPPED) * HPAGE_PMD_NR);
+		    global_page_state(NR_SHMEM_PMDMAPPED) * HPAGE_PMD_NR);
 #endif
 
 #ifdef CONFIG_CMA
