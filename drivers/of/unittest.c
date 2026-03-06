@@ -240,8 +240,6 @@ static void __init of_unittest_check_tree_linkage(void)
 	pr_debug("allnodes list size (%i); sibling lists size (%i)\n", allnode_count, child_count);
 }
 
-<<<<<<< HEAD
-=======
 static void __init of_unittest_printf_one(struct device_node *np, const char *fmt,
 					  const char *expected)
 {
@@ -299,7 +297,6 @@ static void __init of_unittest_printf(void)
 			"\"test-sub-device\",\"test-compat2\",\"test-compat3\"");
 }
 
->>>>>>> 7f2847d02cdc4 (proc: add seq_put_decimal_ull_width to speed up /proc/pid/smaps)
 struct node_hash {
 	struct hlist_node node;
 	struct device_node *np;
