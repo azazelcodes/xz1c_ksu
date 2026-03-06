@@ -1169,12 +1169,14 @@ static int susfs_handle_sdcard_event_compat(struct fsnotify_group *group,
 	u32 mask, void *data, int data_type,
 	const unsigned char *file_name, u32 cookie)
 {
+	/* no need for str, right?
 	struct qstr qname;
 	if (!file_name)
 		return 0;
 	qname.name = file_name;
 	qname.len = strlen(file_name);
-	return susfs_handle_sdcard_inode_event(inode_mark, mask, inode, NULL, &qname, cookie);
+	*/
+	return susfs_handle_sdcard_inode_event(group, inode, inode_mark, vfsmount_mark, mask, (const void *)data, data_type, file_name, cookie, NULL); // safe to nullify struct fsnotify_iter_info *iter_info? if so, maybe just modify susfs_handle_sdcard_inode_event to not take it??
 }
 static const struct fsnotify_ops fsnotify_ops = {
 	.handle_event = susfs_handle_sdcard_event_compat,
