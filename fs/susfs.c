@@ -1156,9 +1156,30 @@ static int susfs_handle_sdcard_inode_event(struct fsnotify_group *group,
 	return 0;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0)
 static const struct fsnotify_ops fsnotify_ops = {
 	.handle_inode_event = susfs_handle_sdcard_inode_event,
 };
+#else
+/* Kernel 4.9 uses handle_event with a different signature */
+static int susfs_handle_sdcard_event_compat(struct fsnotify_group *group,
+	struct inode *inode,
+	struct fsnotify_mark *inode_mark,
+	struct fsnotify_mark *vfsmount_mark,
+	u32 mask, void *data, int data_type,
+	const unsigned char *file_name, u32 cookie)
+{
+	struct qstr qname;
+	if (!file_name)
+		return 0;
+	qname.name = file_name;
+	qname.len = strlen(file_name);
+	return susfs_handle_sdcard_inode_event(inode_mark, mask, inode, NULL, &qname, cookie);
+}
+static const struct fsnotify_ops fsnotify_ops = {
+	.handle_event = susfs_handle_sdcard_event_compat,
+};
+#endif
 
 static int add_mark_on_inode(struct inode *inode, u32 mask,
 								struct fsnotify_mark **out)
