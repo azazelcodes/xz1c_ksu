@@ -780,7 +780,7 @@ static int show_smap(struct seq_file *m, void *v)
 	smap_gather_stats(vma, &mss);
 
 	show_map_vma(m, vma);
-	if (!rollup_mode && vma_get_anon_name(vma)) {
+	if (vma_get_anon_name(vma)) {
 		seq_puts(m, "Name:           ");
 		seq_print_vma_name(m, vma);
 		seq_putc(m, '\n');
@@ -877,7 +877,7 @@ static int pid_smaps_open(struct inode *inode, struct file *file)
 	return do_maps_open(inode, file, &proc_pid_smaps_op);
 }
 
-#define GFP_KERNEL_ACCOUNT (GFP_KERNEL | __GFP_ACCOUNT)
+#define GFP_KERNEL_ACCOUNT (GFP_KERNEL | __GFP_NOACCOUNT)
 static int smaps_rollup_open(struct inode *inode, struct file *file)
 {
 	int ret;
