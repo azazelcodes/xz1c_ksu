@@ -1157,7 +1157,7 @@ static int susfs_handle_sdcard_inode_event(struct fsnotify_group *group,
 }
 
 static const struct fsnotify_ops fsnotify_ops = {
-	.handle_event = susfs_handle_sdcard_inode_event,
+	.handle_inode_event = susfs_handle_sdcard_inode_event,
 };
 
 static int add_mark_on_inode(struct inode *inode, u32 mask,
@@ -1169,10 +1169,10 @@ static int add_mark_on_inode(struct inode *inode, u32 mask,
 	if (!m)
 		return -ENOMEM;
 
-	fsnotify_init_mark(m, g);
+	fsnotify_init_mark(m, NULL);
 	m->mask = mask;
 
-	if (fsnotify_add_mark(m, inode, NULL, 0)) {
+	if (fsnotify_add_mark(m, g, inode, NULL, 0)) {
 		fsnotify_put_mark(m);
 		return -EINVAL;
 	}
