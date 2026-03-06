@@ -1101,7 +1101,7 @@ int ida_alloc_range(struct ida *ida, unsigned int min, unsigned int max,
 		max = INT_MAX;
 
 again:
-	if (!ida_pre_get(ida, gfp_mask))
+	if (!ida_pre_get(ida, gfp))
 		return -ENOMEM;
 
 	spin_lock_irqsave(&simple_ida_lock, flags);
