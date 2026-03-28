@@ -91,12 +91,15 @@ static int do_get_info(void __user *arg)
 					.flags = 0 };
 
 #ifdef MODULE
-	cmd.flags |= 0x1;
+	cmd.flags |= KSU_GET_INFO_FLAG_LKM;
 #endif
 
 	if (is_manager()) {
-		cmd.flags |= 0x2;
-	}
+        cmd.flags |= KSU_GET_INFO_FLAG_MANAGER;
+    }
+    if (ksu_late_loaded) {
+        cmd.flags |= KSU_GET_INFO_FLAG_LATE_LOAD;
+    }
 	cmd.features = KSU_FEATURE_MAX;
 
 	if (copy_to_user(arg, &cmd, sizeof(cmd))) {
@@ -120,8 +123,12 @@ static int do_report_event(void __user *arg)
 		static bool post_fs_data_lock = false;
 		if (!post_fs_data_lock) {
 			post_fs_data_lock = true;
-			pr_info("post-fs-data triggered\n");
-			on_post_fs_data();
+            if (ksu_late_loaded) {
+                pr_info("post-fs-data skipped (late load)\n");
+            } else {
+                pr_info("post-fs-data triggered\n");
+                on_post_fs_data();
+            }
 		}
 		break;
 	}
@@ -129,8 +136,12 @@ static int do_report_event(void __user *arg)
 		static bool boot_complete_lock = false;
 		if (!boot_complete_lock) {
 			boot_complete_lock = true;
-			pr_info("boot_complete triggered\n");
-			on_boot_completed();
+			if (ksu_late_loaded) {
+                pr_info("boot_complete skipped (late load)\n");
+            } else {
+                pr_info("boot_complete triggered\n");
+                on_boot_completed();
+            }
 #ifdef CONFIG_KSU_SUSFS
 			susfs_start_sdcard_monitor_fn();
 #endif // #ifdef CONFIG_KSU_SUSFS
@@ -157,7 +168,7 @@ static int do_set_sepolicy(void __user *arg)
 		return -EFAULT;
 	}
 
-	return handle_sepolicy(cmd.cmd, (void __user *)cmd.arg);
+	return handle_sepolicy((void __user *)cmd.data, cmd.data_len);
 }
 
 static int do_check_safemode(void __user *arg)
@@ -178,50 +189,111 @@ static int do_check_safemode(void __user *arg)
 	return 0;
 }
 
-static int do_get_allow_list(void __user *arg)
+static int do_new_get_allow_list_common(void __user *arg, bool allow)
 {
-	struct ksu_get_allow_list_cmd cmd;
+	struct ksu_new_get_allow_list_cmd cmd;
+	int *arr = NULL;
+	int err = 0;
 
 	if (copy_from_user(&cmd, arg, sizeof(cmd))) {
 		return -EFAULT;
 	}
 
+	if (cmd.count) {
+		arr = kmalloc(sizeof(int) * cmd.count, GFP_KERNEL);
+		if (!arr) {
+			return -ENOMEM;
+		}
+	}
+
 	bool success =
-		ksu_get_allow_list((int *)cmd.uids, (int *)&cmd.count, true);
+		ksu_get_allow_list(arr, cmd.count, &cmd.count, &cmd.total_count, allow);
 
 	if (!success) {
-		return -EFAULT;
+		err = -EFAULT;
+		goto out;
 	}
 
 	if (copy_to_user(arg, &cmd, sizeof(cmd))) {
-		pr_err("get_allow_list: copy_to_user failed\n");
-		return -EFAULT;
+		pr_err("new_get_allow_list: copy_to_user count failed\n");
+		err = -EFAULT;
+		goto out;
 	}
 
-	return 0;
+	if (cmd.count &&
+		copy_to_user(&((struct ksu_new_get_allow_list_cmd *)arg)->uids, arr,
+					 sizeof(int) * cmd.count)) {
+		pr_err("new_get_allow_list: copy_to_user uids failed\n");
+		err = -EFAULT;
+	}
+
+out:
+	if (arr) {
+		kfree(arr);
+	}
+	return err;
+}
+
+static int do_new_get_deny_list(void __user *arg)
+{
+	return do_new_get_allow_list_common(arg, false);
+}
+
+static int do_new_get_allow_list(void __user *arg)
+{
+	return do_new_get_allow_list_common(arg, true);
+}
+
+static int do_get_allow_list_common(void __user *arg, bool allow)
+{
+	int *arr = NULL;
+	int err = 0;
+	u16 count;
+	u32 out_count;
+	static const u16 kSize = 128;
+
+	arr = kmalloc(sizeof(int) * kSize, GFP_KERNEL);
+	if (!arr) {
+		return -ENOMEM;
+	}
+
+	bool success = ksu_get_allow_list(arr, kSize, &count, NULL, allow);
+
+
+	if (!success) {
+		err = -EFAULT;
+		goto out;
+	}
+
+	out_count = count;
+
+	if (copy_to_user(arg + offsetof(struct ksu_get_allow_list_cmd, count),
+					 &out_count, sizeof(u32))) {
+		pr_err("get_allow_list: copy_to_user count failed\n");
+		err = -EFAULT;
+		goto out;
+	}
+
+	if (copy_to_user(arg, arr, sizeof(u32) * count)) {
+		pr_err("get_allow_list: copy_to_user uids failed\n");
+		err = -EFAULT;
+	}
+
+out:
+	if (arr) {
+		kfree(arr);
+	}
+	return err;
 }
 
 static int do_get_deny_list(void __user *arg)
 {
-	struct ksu_get_allow_list_cmd cmd;
+	return do_get_allow_list_common(arg, false);
+}
 
-	if (copy_from_user(&cmd, arg, sizeof(cmd))) {
-		return -EFAULT;
-	}
-
-	bool success =
-		ksu_get_allow_list((int *)cmd.uids, (int *)&cmd.count, false);
-
-	if (!success) {
-		return -EFAULT;
-	}
-
-	if (copy_to_user(arg, &cmd, sizeof(cmd))) {
-		pr_err("get_deny_list: copy_to_user failed\n");
-		return -EFAULT;
-	}
-
-	return 0;
+static int do_get_allow_list(void __user *arg)
+{
+	return do_get_allow_list_common(arg, true);
 }
 
 static int do_uid_granted_root(void __user *arg)
@@ -298,17 +370,22 @@ static int do_get_app_profile(void __user *arg)
 static int do_set_app_profile(void __user *arg)
 {
 	struct ksu_set_app_profile_cmd cmd;
+	int ret;
 
 	if (copy_from_user(&cmd, arg, sizeof(cmd))) {
 		pr_err("set_app_profile: copy_from_user failed\n");
 		return -EFAULT;
 	}
 
-	if (!ksu_set_app_profile(&cmd.profile, true)) {
-		return -EFAULT;
+	ret = ksu_set_app_profile(&cmd.profile);
+	if (!ret) {
+		ksu_persistent_allow_list();
+#ifndef CONFIG_KSU_SUSFS
+		ksu_mark_running_process();
+#endif
 	}
 
-	return 0;
+	return ret;
 }
 
 static int do_get_feature(void __user *arg)
@@ -327,7 +404,7 @@ static int do_get_feature(void __user *arg)
 
 	if (ret && supported) {
 		pr_err("get_feature: failed for feature %u: %d\n",
-		       cmd.feature_id, ret);
+			   cmd.feature_id, ret);
 		return ret;
 	}
 
@@ -352,7 +429,7 @@ static int do_set_feature(void __user *arg)
 	ret = ksu_set_feature(cmd.feature_id, cmd.value);
 	if (ret) {
 		pr_err("set_feature: failed for feature %u: %d\n",
-		       cmd.feature_id, ret);
+			   cmd.feature_id, ret);
 		return ret;
 	}
 
@@ -392,7 +469,7 @@ static int do_manage_mark(void __user *arg)
 		ret = ksu_get_task_mark(cmd.pid);
 		if (ret < 0) {
 			pr_err("manage_mark: get failed for pid %d: %d\n",
-			       cmd.pid, ret);
+				   cmd.pid, ret);
 			return ret;
 		}
 		cmd.result = (u32)ret;
@@ -416,7 +493,7 @@ static int do_manage_mark(void __user *arg)
 			ret = ksu_set_task_mark(cmd.pid, true);
 			if (ret < 0) {
 				pr_err("manage_mark: set_mark failed for pid %d: %d\n",
-				       cmd.pid, ret);
+					   cmd.pid, ret);
 				return ret;
 			}
 		}
@@ -435,7 +512,7 @@ static int do_manage_mark(void __user *arg)
 			ret = ksu_set_task_mark(cmd.pid, false);
 			if (ret < 0) {
 				pr_err("manage_mark: set_unmark failed for pid %d: %d\n",
-				       cmd.pid, ret);
+					   cmd.pid, ret);
 				return ret;
 			}
 		}
@@ -502,7 +579,7 @@ static int add_try_umount(void __user *arg)
 
 	case KSU_UMOUNT_ADD: {
 		long len = strncpy_from_user(buf, (const char __user *)cmd.arg,
-					     256);
+						 256);
 		if (len <= 0)
 			return -EFAULT;
 
@@ -551,7 +628,7 @@ static int add_try_umount(void __user *arg)
 	// this is just strcmp'd wipe anyway
 	case KSU_UMOUNT_DEL: {
 		long len = strncpy_from_user(buf, (const char __user *)cmd.arg,
-					     sizeof(buf) - 1);
+						 sizeof(buf) - 1);
 		if (len <= 0)
 			return -EFAULT;
 
@@ -659,21 +736,21 @@ static int list_try_umount(void __user *arg)
 		output_size = MAX_UMOUNT_LIST_SIZE;
 
 	pr_info("KernelSU: Allocating %zu bytes for %d mounts (user requested %zu)\n",
-	        output_size, mount_count, (size_t)cmd.buf_size);
+			output_size, mount_count, (size_t)cmd.buf_size);
 
 	// Try kzalloc first with NOWARN flag
 	output_buf = kzalloc(output_size, GFP_KERNEL | __GFP_NOWARN);
 	if (!output_buf) {
 		// Fallback to vzalloc for large allocations
 		pr_info("KernelSU: kzalloc failed for %zu bytes, using vzalloc\n", 
-		        output_size);
+				output_size);
 		output_buf = vzalloc(output_size);
 		using_vmalloc = true;
 	}
 
 	if (!output_buf) {
 		pr_err("KernelSU: Failed to allocate %zu bytes for umount list\n",
-		       output_size);
+			   output_size);
 		return -ENOMEM;
 	}
 	offset += snprintf(output_buf + offset, output_size - offset,
@@ -812,16 +889,16 @@ static int do_manual_su(void __user *arg)
 	request.target_pid = cmd.target_pid;
 
 	if (cmd.option == MANUAL_SU_OP_GENERATE_TOKEN ||
-	    cmd.option == MANUAL_SU_OP_ESCALATE) {
+		cmd.option == MANUAL_SU_OP_ESCALATE) {
 		memcpy(request.token_buffer, cmd.token_buffer,
-		       sizeof(request.token_buffer));
+			   sizeof(request.token_buffer));
 	}
 
 	res = ksu_handle_manual_su_request(cmd.option, &request);
 
 	if (cmd.option == MANUAL_SU_OP_GENERATE_TOKEN && res == 0) {
 		memcpy(cmd.token_buffer, request.token_buffer,
-		       sizeof(cmd.token_buffer));
+			   sizeof(cmd.token_buffer));
 		if (copy_to_user(arg, &cmd, sizeof(cmd))) {
 			pr_err("manual_su: copy_to_user failed\n");
 			return -EFAULT;
@@ -840,9 +917,9 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
 	KSU_IOCTL(SET_SEPOLICY, "SET_SEPOLICY", do_set_sepolicy, only_root),
 	KSU_IOCTL(CHECK_SAFEMODE, "CHECK_SAFEMODE", do_check_safemode,
 		  always_allow),
-	KSU_IOCTL(GET_ALLOW_LIST, "GET_ALLOW_LIST", do_get_allow_list,
+	KSU_IOCTL(NEW_GET_ALLOW_LIST, "NEW_GET_ALLOW_LIST", do_new_get_allow_list,
 		  manager_or_root),
-	KSU_IOCTL(GET_DENY_LIST, "GET_DENY_LIST", do_get_deny_list,
+	KSU_IOCTL(NEW_GET_DENY_LIST, "NEW_GET_DENY_LIST", do_new_get_deny_list,
 		  manager_or_root),
 	KSU_IOCTL(UID_GRANTED_ROOT, "UID_GRANTED_ROOT", do_uid_granted_root,
 		  manager_or_root),
@@ -985,14 +1062,6 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd,
 			susfs_add_sus_path_loop(arg);
 			return 0;
 		}
-		if (cmd == CMD_SUSFS_SET_ANDROID_DATA_ROOT_PATH) {
-			susfs_set_i_state_on_external_dir(arg);
-			return 0;
-		}
-		if (cmd == CMD_SUSFS_SET_SDCARD_ROOT_PATH) {
-			susfs_set_i_state_on_external_dir(arg);
-			return 0;
-		}
 #endif //#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 		if (cmd == CMD_SUSFS_HIDE_SUS_MNTS_FOR_NON_SU_PROCS) {
@@ -1060,7 +1129,7 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd,
 			susfs_show_version(arg);
 			return 0;
 		}
-		return 0;
+		return -EINVAL;
 	}
 
 	// Check if this is a request to install KSU fd
@@ -1117,7 +1186,7 @@ static long anon_ksu_ioctl(struct file *filp, unsigned int cmd,
 		if (cmd == ksu_ioctl_handlers[i].cmd) {
 			// Check permission first
 			if (ksu_ioctl_handlers[i].perm_check &&
-			    !ksu_ioctl_handlers[i].perm_check()) {
+				!ksu_ioctl_handlers[i].perm_check()) {
 				pr_warn("ksu ioctl: permission denied for cmd=0x%x uid=%d\n",
 					cmd, current_uid().val);
 				return -EPERM;
