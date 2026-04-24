@@ -197,9 +197,11 @@ static ssize_t proc_reg_read(struct file *file, char __user *buf, size_t count, 
 	struct proc_dir_entry *pde = PDE(file_inode(file));
 	ssize_t rv = -EIO;
 	if (use_pde(pde)) {
+		pr_emerg("proc read: %s\n", pde->name);
+		pr_emerg("pde=%px proc_fops=%px\n", pde, pde->proc_fops);
 		read = pde->proc_fops->read;
 		if (read)
-			rv = read(file, buf, count, ppos);
+			rv = read(file, buf, count, ppos); // according to decode_stacktrace.sh this crashes
 		unuse_pde(pde);
 	}
 	return rv;
