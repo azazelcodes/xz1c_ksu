@@ -1,4 +1,4 @@
-name: Build (No KSU)
+name: Build (BakaSU + SUSFS)
 
 on:
   workflow_dispatch:
@@ -12,11 +12,10 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-          ref: nan
+          ref: baka-susfs
 
       - name: Checkout zipper
         uses: actions/checkout@v5.0.0
-        id: setup
         with:
           repository: azazelcodes/xz1c_AnyKernel3
           path: zipper
@@ -33,5 +32,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: lilac_build
+          name: lilac_build_bakasu
           path: ${{ steps.build.outputs.outfile }}
+
