@@ -20,6 +20,12 @@ jobs:
           repository: azazelcodes/xz1c_AnyKernel3
           path: zipper
 
+      - name: Query cache
+        uses: actions/cache@v6
+        with:
+          path: /aosp-clang
+          key: clang-r487747c
+
       - name: Android kernel build
         uses: azazelcodes/android-kernel-actions@master
         id: build
