@@ -17,7 +17,6 @@
 
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
-
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/susfs_def.h>
 #include "mount.h"
@@ -29,11 +28,6 @@ extern struct static_key_true ksu_su_compat_enabled;
 extern bool __ksu_is_allow_uid_for_current(uid_t uid);
 extern int ksu_handle_stat(int *dfd, struct filename **filename, int *flags);
 #endif // #ifdef CONFIG_KSU_SUSFS
-
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-extern bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse);
-extern void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat, u32 result_mask);
-#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 
 void generic_fillattr(struct inode *inode, struct kstat *stat)
 {
@@ -69,44 +63,11 @@ EXPORT_SYMBOL(generic_fillattr);
 int vfs_getattr_nosec(struct path *path, struct kstat *stat)
 {
 	struct inode *inode = d_backing_inode(path->dentry);
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	u32 result_mask = 0;
-	bool is_fuse = false;
-#endif
 
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	if (susfs_is_current_app_uid() &&
-	    susfs_is_inode_sus_kstat(inode, &is_fuse))
-		result_mask = is_fuse ? STATX_SUS_KSTAT_FUSE :
-			STATX_SUS_KSTAT;
-#endif
-
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	if (inode->i_op->getattr) {
-#else
 	if (inode->i_op->getattr)
-#endif
-
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-		int err;
-
-		err = inode->i_op->getattr(path->mnt, path->dentry, stat);
-
-		if (!err && result_mask)
-			susfs_sus_kstat_spoof_generic_fillattr(inode, stat,
-					result_mask);
-
-		return err;
-	}
-#else
 		return inode->i_op->getattr(path->mnt, path->dentry, stat);
-#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 
 	generic_fillattr(inode, stat);
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	if (result_mask)
-		susfs_sus_kstat_spoof_generic_fillattr(inode, stat, result_mask);
-#endif
 	return 0;
 }
 
@@ -131,13 +92,12 @@ int vfs_fstat(unsigned int fd, struct kstat *stat)
 
 	if (f.file) {
 		error = vfs_getattr(&f.file->f_path, stat);
-	
 #ifdef CONFIG_KSU_SUSFS
 		if (static_branch_unlikely(&ksu_is_init_rc_hook_enabled))
 			ksu_handle_vfs_fstat(fd, &stat->size);
 #endif // #ifdef CONFIG_KSU_SUSFS
 
-        fdput(f);
+		fdput(f);
 	}
 	return error;
 }
@@ -149,12 +109,12 @@ int vfs_fstatat(int dfd, const char __user *filename, struct kstat *stat,
 	struct path path;
 	int error = -EINVAL;
 	unsigned int lookup_flags = 0;
-
 #ifdef CONFIG_KSU_SUSFS
-struct filename *fname = NULL;
+	struct filename *fname = NULL;
 	extern int filename_lookup(int dfd, struct filename *name, unsigned flags,
-	                           struct path *path, struct path *root);
+					struct path *path, struct path *root);
 #endif
+
 
 	if ((flag & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
 		      AT_EMPTY_PATH)) != 0)
@@ -165,7 +125,6 @@ struct filename *fname = NULL;
 	if (flag & AT_EMPTY_PATH)
 		lookup_flags |= LOOKUP_EMPTY;
 retry:
-
 #ifdef CONFIG_KSU_SUSFS
 	fname = getname_flags(filename, lookup_flags, NULL);
 
@@ -174,8 +133,8 @@ retry:
 
 	if (static_branch_likely(&ksu_su_compat_enabled)) {
 		if (unlikely(__ksu_is_allow_uid_for_current(current_uid().val)))
-	        ksu_handle_stat(&dfd, &fname, &flag);
-    }
+			ksu_handle_stat(&dfd, &fname, &flag);
+	}
 
 orig_flow:
 	error = filename_lookup(dfd, fname, lookup_flags, &path, NULL);
@@ -183,7 +142,7 @@ orig_flow:
 #else
 	error = user_path_at(dfd, filename, lookup_flags, &path);
 #endif
-    if (error)
+	if (error)
 		goto out;
 
 	error = vfs_getattr(&path, stat);
@@ -366,27 +325,12 @@ SYSCALL_DEFINE2(newlstat, const char __user *, filename,
 	return cp_new_stat(&stat, statbuf);
 }
 
-#ifdef CONFIG_KSU_MANUAL_HOOK
-__attribute__((hot))
-extern int ksu_handle_stat(int *dfd, const char __user **filename_user,
-				int *flags);
-
-extern void ksu_handle_newfstat_ret(unsigned int *fd, struct stat __user **statbuf_ptr);
-#if defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64)
-extern void ksu_handle_fstat64_ret(unsigned long *fd, struct stat64 __user **statbuf_ptr); // optional
-#endif
-#endif
-
 #if !defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_SYS_NEWFSTATAT)
 SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
 		struct stat __user *, statbuf, int, flag)
 {
 	struct kstat stat;
 	int error;
-
-#ifdef CONFIG_KSU_MANUAL_HOOK // 32-bit su
-	ksu_handle_stat(&dfd, &filename, &flag);
-#endif
 
 	error = vfs_fstatat(dfd, filename, &stat, flag);
 	if (error)
@@ -402,10 +346,6 @@ SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user *, statbuf)
 
 	if (!error)
 		error = cp_new_stat(&stat, statbuf);
-
-#ifdef CONFIG_KSU_MANUAL_HOOK
-	ksu_handle_newfstat_ret(&fd, &statbuf);
-#endif
 
 	return error;
 }
@@ -525,10 +465,6 @@ SYSCALL_DEFINE2(fstat64, unsigned long, fd, struct stat64 __user *, statbuf)
 	if (!error)
 		error = cp_new_stat64(&stat, statbuf);
 
-#ifdef CONFIG_KSU_MANUAL_HOOK // for 32-bit
-	ksu_handle_fstat64_ret(&fd, &statbuf);
-#endif
-
 	return error;
 }
 
@@ -537,10 +473,6 @@ SYSCALL_DEFINE4(fstatat64, int, dfd, const char __user *, filename,
 {
 	struct kstat stat;
 	int error;
-
-#ifdef CONFIG_KSU_MANUAL_HOOK
-	ksu_handle_stat(&dfd, &filename, &flag);
-#endif
 
 	error = vfs_fstatat(dfd, filename, &stat, flag);
 	if (error)
