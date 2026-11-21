@@ -2,3 +2,6 @@
 	path = KernelSU-Next
 	url = https://github.com/sunplex07/KernelSU-Next.git
 	branch = legacy-lilac-compat
+[submodule "BakaSU"]
+	path = BakaSU
+	url = https://github.com/Baka-SU/BakaSU.git
