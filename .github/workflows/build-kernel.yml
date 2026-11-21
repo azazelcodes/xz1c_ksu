@@ -1,0 +1,66 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      flavour:
+        description: "Choose your flavour!"
+        required: true
+        type: choice
+        options:
+          - vanilla
+          - old-spice
+          # TODO: add flavours for bakasu, ksun, etc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Identify flavour
+        run: |
+          case "${{ inputs.flavour }}" in
+            vanilla) echo "BRANCH=nan-23" >> "$GITHUB_ENV" ;;
+            old-vanilla) echo "BRANCH=nan" >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Checkout zipper
+        uses: actions/checkout@v5
+        with:
+          repository: azazelcodes/xz1c_AnyKernel3
+          path: zipper
+
+      - name: Cache
+        uses: actions/cache@v6
+        with:
+          path: .cache/
+          key: akc-cache
+
+      - name: Checkout kernel source
+        uses: actions/checkout@v5.0.0
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ env.BRANCH }}
+
+      - name: Build kernel
+        uses: azazelcodes/android-kernel-actions@master
+        id: build
+        with:
+          arch: arm64
+          compiler: aosp-clang/clang-r487747c
+          defconfig: lineage-msm8998-yoshino-lilac_defconfig
+          image: Image.gz-dtb
+
+      - name: Rename artifact
+        env:
+          FLAVOUR: ${{ inputs.flavour }}
+          OUTFILE: ${{ steps.build.outputs.outfile }}
+        run: mv "$OUTFILE" "lilac-build_${FLAVOUR}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: lilac-build_${{ inputs.flavour }}.zip
+          archive: false
+
+
