@@ -9,3 +9,10 @@ run the build-kernel workflow and select your flavour
 | vanilla | regular lineage 23 kernel, no root |
 | old-spice | regular lineage 21 kernel, no root |
 |  |  |
+| chocolate | l23, kernelsu-next |
+| strawberry | l23, sukisu-nova |
+|  |  |
+| coffee | l23, bakasu |
+| tiramisu | l23, bakasu, susfs |
+|  |  |
+| raspberry | l23, droidspaces, bakasu |

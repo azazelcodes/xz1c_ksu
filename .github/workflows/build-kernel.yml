@@ -1,4 +1,5 @@
 name: Build Kernel
+run-name: Build Kernel (${{ inputs.flavour }})
 
 on:
   workflow_dispatch:
@@ -10,7 +11,8 @@ on:
         options:
           - vanilla
           - old-spice
-          # TODO: add flavours for bakasu, ksun, etc
+
+          - coffee
 
 jobs:
   build:
@@ -21,6 +23,8 @@ jobs:
           case "${{ inputs.flavour }}" in
             vanilla) echo "BRANCH=nan-23" >> "$GITHUB_ENV" ;;
             old-vanilla) echo "BRANCH=nan" >> "$GITHUB_ENV" ;;
+
+            coffee) echo "BRANCH=baka-23" >> "$GITHUB_ENV" ;;
           esac
 
       - name: Checkout zipper
@@ -55,7 +59,9 @@ jobs:
         env:
           FLAVOUR: ${{ inputs.flavour }}
           OUTFILE: ${{ steps.build.outputs.outfile }}
-        run: mv "$OUTFILE" "lilac-build_${FLAVOUR}.zip"
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" "$(dirname "$OUTFILE")"
+          mv "$OUTFILE" "lilac-build_${FLAVOUR}.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
