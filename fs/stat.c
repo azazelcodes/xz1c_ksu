@@ -287,7 +287,7 @@ SYSCALL_DEFINE2(newlstat, const char __user *, filename,
 	return cp_new_stat(&stat, statbuf);
 }
 
-#ifdef CONFIG_KSU
+#if defined(CONFIG_KSU) && defined(CONFIG_KSU_OLD)
 __attribute__((hot)) 
 extern int ksu_handle_stat(int *dfd, const char __user **filename_user,
 				int *flags);
@@ -301,7 +301,7 @@ SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
 	struct kstat stat;
 	int error;
 
-#ifdef CONFIG_KSU
+#if defined(CONFIG_KSU) && defined(CONFIG_KSU_OLD)
 	ksu_handle_stat(&dfd, &filename, &flag);
 #endif
 	
@@ -312,7 +312,7 @@ SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
 }
 #endif
 
-#ifdef CONFIG_KSU_MANUAL_HOOK
+#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_OLD)
 extern void ksu_handle_newfstat_ret(unsigned int *fd,
 		struct stat __user **statbuf_ptr);
 #endif
@@ -324,7 +324,7 @@ SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user *, statbuf)
 
 	if (!error)
 		error = cp_new_stat(&stat, statbuf);
-#ifdef CONFIG_KSU_MANUAL_HOOK
+#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_OLD)
 	/* init sizes its read buffer from fstat before it reads init.rc */
 	if (!error)
 		ksu_handle_newfstat_ret(&fd, &statbuf);

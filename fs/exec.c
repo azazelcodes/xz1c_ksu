@@ -1522,7 +1522,7 @@ static int exec_binprm(struct linux_binprm *bprm)
 	return ret;
 }
 
-#ifdef CONFIG_KSU_MANUAL_HOOK
+#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_OLD)
 extern int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr,
 		struct user_arg_ptr *argv, struct user_arg_ptr *envp, int *flags);
 extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
@@ -1546,7 +1546,7 @@ static int do_execveat_common(int fd, struct filename *filename,
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
 
-#ifdef CONFIG_KSU_MANUAL_HOOK
+#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_OLD)
 	/* give init tracking the real fd/flags and argv (native or compat) */
 	ksu_handle_execveat_ksud(&fd, &filename, &argv, &envp, &flags);
 	/* ksu's sulog helper wants kernel argv, not a user_arg_ptr.
