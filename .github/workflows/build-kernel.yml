@@ -12,6 +12,8 @@ on:
           - vanilla
           - old-spice
 
+          - strawberry
+
           - coffee
 
 jobs:
@@ -23,9 +25,18 @@ jobs:
           case "${{ inputs.flavour }}" in
             vanilla) echo "BRANCH=nan-23" >> "$GITHUB_ENV" ;;
             old-vanilla) echo "BRANCH=nan" >> "$GITHUB_ENV" ;;
+            
+            strawberry) echo "BRANCH=suki-23" >> "$GITHUB_ENV" ;;
 
             coffee) echo "BRANCH=baka-23" >> "$GITHUB_ENV" ;;
           esac
+
+      - name: Checkout kernel source
+        uses: actions/checkout@v5.0.0
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ env.BRANCH }}
 
       - name: Checkout zipper
         uses: actions/checkout@v5
@@ -38,13 +49,6 @@ jobs:
         with:
           path: .cache/
           key: akc-cache
-
-      - name: Checkout kernel source
-        uses: actions/checkout@v5.0.0
-        with:
-          submodules: recursive
-          fetch-depth: 0
-          ref: ${{ env.BRANCH }}
 
       - name: Build kernel
         uses: azazelcodes/android-kernel-actions@master
