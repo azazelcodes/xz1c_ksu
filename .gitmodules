@@ -1,1 +1,5 @@
 
+[submodule "SukiSU"]
+	path = SukiSU
+	url = https://github.com/SukiSU-Nova/SukiSU-Nova.git
+	branch = builtin-new
