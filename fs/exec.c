@@ -1522,13 +1522,6 @@ static int exec_binprm(struct linux_binprm *bprm)
 	return ret;
 }
 
-#ifdef CONFIG_KSU_MANUAL_HOOK
-extern int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr,
-		struct user_arg_ptr *argv, struct user_arg_ptr *envp, int *flags);
-extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
-		void *argv, void *envp, int *flags);
-#endif
-
 /*
  * sys_execve() executes a new program.
  */
@@ -1545,15 +1538,6 @@ static int do_execveat_common(int fd, struct filename *filename,
 
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
-
-#ifdef CONFIG_KSU_MANUAL_HOOK
-	/* give init tracking the real fd/flags and argv (native or compat) */
-	ksu_handle_execveat_ksud(&fd, &filename, &argv, &envp, &flags);
-	/* ksu's sulog helper wants kernel argv, not a user_arg_ptr.
-	 * passing NULL still logs the exe and never touches user memory
-	 */
-	ksu_handle_execveat_sucompat(&fd, &filename, NULL, NULL, &flags);
-#endif
 
 	/*
 	 * We move the actual failure in case of RLIMIT_NPROC excess from
